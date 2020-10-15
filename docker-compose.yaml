@@ -1,0 +1,16 @@
+version: "3.7"
+
+services: 
+    backend:
+        build: ./src/BooksLibrary.API
+        image: books-library:alpha
+        ports:
+            - "5001:443"
+        environment: 
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_URLS=https://+:443;http://+:80
+            - ASPNETCORE_HTTPS_PORT=5001
+            - ASPNETCORE_Kestrel__Certificates__Default__Password=1234
+            - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/cert-aspnetcore.pfx
+        volumes: 
+            - ./src/BooksLibrary.API/cert-aspnetcore.pfx:/https/cert-aspnetcore.pfx:ro
