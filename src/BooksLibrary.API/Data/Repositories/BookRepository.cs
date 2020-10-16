@@ -20,8 +20,10 @@ namespace BooksLibrary.API.Data.Repositories
             return storageProvider.GetBooks();
         }
 
-        public void Insert(Book item){
-            storageProvider.InsertBook(item);
+        public Book Insert(Book item){
+            var book = storageProvider.InsertBook(item);
+
+            return book;
         }
 
         public void Update(string id, Book item){

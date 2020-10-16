@@ -32,9 +32,9 @@ namespace BooksLibrary.API.Controllers
 
         [HttpPost]
         public ActionResult<Book> AddBook([FromBody] Book book){
-            dataRepository.Insert(book);
+            book = dataRepository.Insert(book);
             // Return the book with Id
-            return Ok();
+            return Ok(book);
         }
 
         [HttpPut]

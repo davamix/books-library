@@ -32,6 +32,11 @@ namespace BooksLibrary.API
             services.AddScoped<IDataRepository<Book>, BookRepository>();
             services.AddScoped<IDataRepository<Author>, AuthorRepository>();
 
+            services.AddCors(o => o.AddPolicy("AllowCors", builder =>
+            {
+                builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+            }));
+
             services.AddControllers();
         }
 
@@ -46,6 +51,8 @@ namespace BooksLibrary.API
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors("AllowCors");
 
             app.UseAuthorization();
 

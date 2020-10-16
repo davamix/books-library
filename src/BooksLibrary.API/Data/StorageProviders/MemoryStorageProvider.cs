@@ -31,8 +31,10 @@ namespace BooksLibrary.API.Data.StorageProviders
             });
         }
 
-        public void InsertBook(Book book){
+        public Book InsertBook(Book book){
             books.Add(book);
+
+            return book;
         }
 
         public void UpdateBook(string id, Book book){
@@ -57,8 +59,10 @@ namespace BooksLibrary.API.Data.StorageProviders
             return books.SingleOrDefault(x=>x.Id.Equals(id));
         }
 
-        public void InsertAuthor(Author author){
+        public Author InsertAuthor(Author author){
             authors.Add(author);
+
+            return author;
         }
 
         public void UpdateAuthor(string id, Author author){

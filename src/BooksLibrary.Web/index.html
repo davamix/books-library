@@ -19,5 +19,29 @@
 
     <main id="main"></main>
 
+    <div class="book-window" id="book-window">
+        <span class="container"></span>
+        <div class="popup-content">
+            <span class="title">New Book</span>
+            <div class="book-info">
+                <input type="hidden" name="book-id" id="book-id"/>
+                <label>
+                    Title<br/>
+                    <input type="text" name="book-title" id="book-title"/>
+                </label><br/>
+            </div>
+
+            <div class="toolbar">
+                <button class="save" id="save" title="Save book">
+                    <li class="fas fa-save"></li> Save
+                </button>
+                <button class="close" id="close" title="Close window">
+                    <li class="fas fa-times"></li> Close
+                </button>
+            </div>
+        </div>
+        
+    </div>
+
 </body>
 </html>
