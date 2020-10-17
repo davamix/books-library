@@ -59,6 +59,10 @@ namespace BooksLibrary.API.Data.StorageProviders
             return books.SingleOrDefault(x=>x.Id.Equals(id));
         }
 
+        public IList<Book> SearchBook(string query){
+            return books.Where(x=>x.Title.Contains(query)).ToList();
+        }
+
         public Author InsertAuthor(Author author){
             authors.Add(author);
 
@@ -82,9 +86,11 @@ namespace BooksLibrary.API.Data.StorageProviders
         public IList<Author> GetAuthors(){
             return authors;
         }
-
         public Author GetAuthor(string id){
             return authors.SingleOrDefault(x=>x.Id.Equals(id));
+        }
+        public IList<Author> SearchAuthor(string query){
+            return authors.Where(x=>x.Name.Contains(query)).ToList();
         }
     }
 }

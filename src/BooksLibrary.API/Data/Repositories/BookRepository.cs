@@ -33,5 +33,9 @@ namespace BooksLibrary.API.Data.Repositories
         public void Delete(string id){
             storageProvider.DeleteBook(id);
         }
+
+        public IList<Book> Search(string query){
+            return storageProvider.SearchBook(query);
+        }
     }
 }

@@ -47,7 +47,7 @@ main{
 }
 
 .book-info{
-    color: #eee;
+    color: #EBE5E2;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -98,14 +98,15 @@ main{
 }
 
 .book-window .title{
-    background-color: #9ec862;
+    background-color: #373B69;
+    color: #EBE5E2;
     display: flex;
     justify-content: center;
     padding: 0.5rem;
 }
 
 .book-window .book-info{
-    background-color: #eee;
+    background-color: #EBE5E2;
     color: #22254b;
     overflow: hidden;
     width: 100%;
@@ -119,7 +120,8 @@ main{
 }
 
 .book-window .toolbar{
-    background-color:#9ec862;
+    background-color: #373B69;
+    color:#EBE5E2;
     display:flex;
     justify-content: flex-end;
     padding: 0.5rem;

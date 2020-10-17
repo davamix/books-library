@@ -10,11 +10,13 @@ namespace BooksLibrary.API.Data.StorageProviders
         void DeleteBook(string id);
         IList<Book> GetBooks();
         Book GetBook(string id);
+        IList<Book> SearchBook(string query);
 
         Author InsertAuthor(Author author);
         void UpdateAuthor(string id, Author author);
         void DeleteAuthor(string id);
         IList<Author> GetAuthors();
         Author GetAuthor(string id);
+        IList<Author> SearchAuthor(string query);
     }
 }

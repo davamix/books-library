@@ -26,8 +26,19 @@ namespace BooksLibrary.API.Controllers
         [HttpGet]
         [Route("[action]")]
         // https://localhost:5001/api/book/GetBooks
-        public IList<Book> GetBooks(){
-            return dataRepository.Get();
+        public ActionResult<IList<Book>> GetBooks(){
+            return Ok(dataRepository.Get());
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        // https://localhost:5001/api/book/Search
+        public ActionResult<IList<Book>> Search([FromQuery] string query = ""){
+            if(!string.IsNullOrEmpty(query)){
+                return Ok(dataRepository.Search(query));
+            }
+            
+            return NoContent();
         }
 
         [HttpPost]

@@ -1,4 +1,8 @@
 
+const API_BOOK_URL = "https://localhost:5001/api/book/";
+const GET_BOOKS_URL = API_BOOK_URL + "GetBooks/";
+const SEARCH_BOOK_URL = API_BOOK_URL + "Search?query=";
+
 const main = document.getElementById("main");
 const form = document.getElementById("form");
 const search = document.getElementById("search");
@@ -57,7 +61,7 @@ async function deleteRequestTo(url){
 async function loadBooks(){
     // const resp = await fetch("https://www.etnassoft.com/api/v1/get/?id=2617");
     // const resp = await fetch("https://localhost:5001/api/book/GetBooks")
-    const resp = getRequestTo("https://localhost:5001/api/book/GetBooks");
+    const resp = getRequestTo(GET_BOOKS_URL);
 
     return resp;
 }
@@ -101,6 +105,7 @@ function showBook(book){
  */
 function addPlaceholder(){
     const bookEl = document.createElement("div");
+    bookEl.setAttribute("id", "book-placeholder");
     bookEl.classList.add("book-placeholder");
 
     bookEl.innerHTML = `
@@ -118,8 +123,6 @@ function addPlaceholder(){
 }
 
 function saveBook(){
-    const url = "https://localhost:5001/api/book/";
-
     const bookId = document.getElementById("book-id").value;
     const bookTitle = document.getElementById("book-title").value;
 
@@ -128,8 +131,7 @@ function saveBook(){
     };
 
     if(bookId == ""){
-        postRequestTo(url, bookData)
-        //.then(response => response.json())
+        postRequestTo(API_BOOK_URL, bookData)
         .then(resp => resp.json())
         .then(data => showBook(data))
         .then(() => closeBookWindow());
@@ -159,3 +161,17 @@ loadBooks()
     console.log(data);
     showBooks(data);
 });
+
+form.addEventListener("submit", (e)=>{
+    e.preventDefault();
+
+    const searchTerm = search.value;
+
+    if(searchTerm){
+        url = SEARCH_BOOK_URL + searchTerm;
+
+        getRequestTo(url)
+        .then(resp => resp.json())
+        .then(data=>console.log(data));
+    }
+})

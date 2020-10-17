@@ -9,5 +9,7 @@ namespace BooksLibrary.API.Data.Repositories
         T Insert(T item);
         void Update(string id, T item);
         void Delete(string id);
+
+        IList<T> Search(string query);
     }
 }
