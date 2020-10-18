@@ -21,6 +21,9 @@ namespace BooksLibrary.API.Data.StorageProviders
             var authorA = new Author{Name="Author A"};
             var authorB = new Author{Name="Author B"};
 
+            authors.Add(authorA);
+            authors.Add(authorB);
+
             books.Add(new Book{
                 Title = "Book A",
                 Authors = new List<Author>{authorA}

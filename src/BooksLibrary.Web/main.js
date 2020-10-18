@@ -4,7 +4,7 @@ const API_BOOK_URL = "https://localhost:5001/api/book/";
 const GET_BOOKS_URL = API_BOOK_URL + "GetBooks/";
 const SEARCH_BOOK_URL = API_BOOK_URL + "Search?query=";
 
-const API_AUTHOR_URL = "https://localhost:5001/api/author";
+const API_AUTHOR_URL = "https://localhost:5001/api/author/";
 const GET_AUTHORS_URL = API_AUTHOR_URL + "GetAuthors/"
 
 const main = document.getElementById("main");
@@ -156,6 +156,13 @@ function saveBook(){
 function openBookWindow(){
     const bookWindow = document.getElementById("book-window");
     bookWindow.style.display = "block";
+
+    getRequestTo(GET_AUTHORS_URL)
+    .then(resp => resp.json())
+    .then(data =>{
+        console.log(data);
+        addAuthorsToList(data);
+    } );
 }
 
 function closeBookWindow(){
@@ -167,6 +174,22 @@ function closeBookWindow(){
 function cleanBookWindow(){
     document.getElementById("book-id").value = "";
     document.getElementById("book-title").value = "";
+}
+
+function addAuthorsToList(authors){
+    const authorList = document.getElementById("author-list");
+
+    authorList.innerHTML = "";
+
+    for(let x=0; x<authors.length; x++){
+        const optionElement = document.createElement("option");
+        optionElement.setAttribute("value", authors[x].id);
+        
+        const optionText = document.createTextNode(authors[x].name);
+        optionElement.appendChild(optionText);
+
+        authorList.appendChild(optionElement);
+    }
 }
 
 
