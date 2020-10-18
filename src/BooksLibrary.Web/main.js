@@ -1,7 +1,11 @@
+import { getRequestTo, postRequestTo, putRequestTo, deleteRequestTo } from "./requests.mjs";
 
 const API_BOOK_URL = "https://localhost:5001/api/book/";
 const GET_BOOKS_URL = API_BOOK_URL + "GetBooks/";
 const SEARCH_BOOK_URL = API_BOOK_URL + "Search?query=";
+
+const API_AUTHOR_URL = "https://localhost:5001/api/author";
+const GET_AUTHORS_URL = API_AUTHOR_URL + "GetAuthors/"
 
 const main = document.getElementById("main");
 const form = document.getElementById("form");
@@ -24,43 +28,43 @@ saveBookButton.addEventListener("click", ()=>{
 
 // REQUESTS
 
-async function getRequestTo(url){
-    const resp = await fetch(url);
+// async function getRequestTo(url){
+//     const resp = await fetch(url);
 
-    return resp;
-}
+//     return resp;
+// }
 
-async function postRequestTo(url, data){
-    const resp = await fetch(url, {
-        method: "POST",
-        headers: {
-            "Content-Type":"application/json"
-        },
-        body: JSON.stringify(data)
-    });
+// async function postRequestTo(url, data){
+//     const resp = await fetch(url, {
+//         method: "POST",
+//         headers: {
+//             "Content-Type":"application/json"
+//         },
+//         body: JSON.stringify(data)
+//     });
 
-    return resp;
-}
+//     return resp;
+// }
 
-async function putRequestTo(url, data){
-    const resp = await fetch(url, {
-        method: "PUT",
-        headers: {
-            "Content-Type":"application/json"
-        },
-        body: JSON.stringify(data)
-    });
+// async function putRequestTo(url, data){
+//     const resp = await fetch(url, {
+//         method: "PUT",
+//         headers: {
+//             "Content-Type":"application/json"
+//         },
+//         body: JSON.stringify(data)
+//     });
 
-    return resp;
-}
+//     return resp;
+// }
 
-async function deleteRequestTo(url){
-    const resp = await fetch(url, {
-        method: "DELETE"
-    });
+// async function deleteRequestTo(url){
+//     const resp = await fetch(url, {
+//         method: "DELETE"
+//     });
 
-    return resp;
-}
+//     return resp;
+// }
 
 async function loadBooks(){
     // const resp = await fetch("https://www.etnassoft.com/api/v1/get/?id=2617");
@@ -146,6 +150,8 @@ function saveBook(){
         .then(() => closeBookWindow());
     }
 }
+
+// BOOK WINDOW FUNCTIONS
 
 function openBookWindow(){
     const bookWindow = document.getElementById("book-window");
