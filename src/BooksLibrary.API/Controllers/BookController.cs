@@ -56,7 +56,7 @@ namespace BooksLibrary.API.Controllers
             return Ok(updatedBook);
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public ActionResult DeleteBook(string id){
             dataRepository.Delete(id);
 

@@ -65,7 +65,26 @@ main{
     width: 100%;
 }
 
-.details{
+.book button{
+    background-color: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 1rem;
+    margin: 0.5rem;
+}
+
+.book .details-top{
+    background-color: rgba(55, 59, 105, 0.2);
+    color: #ebe5e2;
+    position: absolute;
+    width: 100%;
+    overflow: auto;
+    transform: translateY(-100%);
+    transition: transform 0.3s ease-in;
+}
+
+.details-bottom{
     background-color: #373b69;
     color: #ebe5e2;
     padding: 2rem;
@@ -79,15 +98,16 @@ main{
     transition: transform 0.3s ease-in;
 }
 
-.details h3{
+.details-bottom h3{
     margin-top: 0;
 }
 
-.details li{
+.details-bottom li{
     list-style-type: none;
 }
 
-.book:hover .details{
+.book:hover .details-bottom, 
+.book:hover .details-top{
     transform: translateY(0);
 }
 

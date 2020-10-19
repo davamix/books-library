@@ -64,7 +64,13 @@ function showBook(book){
     bookEl.setAttribute("id", book.id);
 
     bookEl.innerHTML = `
+        <div class="details-top">
+            <button class="remove-btn" id="remove-btn" title="Remove book">
+                <i class="far fa-trash-alt"></i>
+            </button>
+        </div>
         <img src="https://via.placeholder.com/300x410.webp?text=Book+Cover" title="${book.title}"/>
+        
         
 
         <div class="book-info">
@@ -72,10 +78,14 @@ function showBook(book){
         </div>
     `
     bookEl.appendChild(createDetailsDiv(book.authors));
-
-    // const bookId = bookEl.getElementsByTagName("input")[0].value;
     bookEl.addEventListener("click", (x)=>{
         editBook(book.id);
+    });
+
+    const removeButton = bookEl.querySelector(".remove-btn");
+    removeButton.addEventListener("click", (x)=>{
+        x.stopPropagation();
+        deleteBook(book.id);
     });
     
 
@@ -84,7 +94,7 @@ function showBook(book){
 
 function createDetailsDiv(authors){
     const overviewEl = document.createElement("div");
-    overviewEl.classList.add("details");
+    overviewEl.classList.add("details-bottom");
 
     const listAuthorEl = document.createElement("ul");
 
@@ -168,6 +178,17 @@ function saveBook(){
 
         });
     }
+}
+
+function deleteBook(bookId){
+    const url = API_BOOK_URL + bookId;
+    deleteRequestTo(url)
+    .then(resp => {
+        if(resp.ok){
+            const bookDiv = document.getElementById(bookId);
+            bookDiv.parentNode.removeChild(bookDiv);
+        }
+    });
 }
 
 // BOOK WINDOW FUNCTIONS
