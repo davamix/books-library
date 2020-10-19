@@ -35,6 +35,14 @@ namespace BooksLibrary.API.Data.StorageProviders
         }
 
         public Book InsertBook(Book book){
+            // If the author/s are new, then add them to the list of authors
+            foreach (var author in book.Authors)
+            {
+                if(!authors.Any(x=>x.Id.Equals(author.Id))){
+                    InsertAuthor(author);
+                }
+            }
+            
             books.Add(book);
 
             return book;

@@ -131,12 +131,16 @@ function addPlaceholder(){
 function saveBook(){
     const bookId = document.getElementById("book-id").value;
     const bookTitle = document.getElementById("book-title").value;
-    const bookAuthor = document.getElementById("book-author").value;
+    const authorList = document.getElementById("author-list");
+    const authorId = authorList.options[authorList.selectedIndex].value;
+    const authorName = authorList.options[authorList.selectedIndex].text;
 
-    // TODO: Check how to save authors in backend.
     const bookData = {
         title: bookTitle,
-        author: bookAuthor
+        authors: [{
+            id: authorId,
+            name: authorName
+        }]
     };
 
     if(bookId == ""){
@@ -165,10 +169,11 @@ function openBookWindow(data = {}){
         addAuthorsToList(data);
     })
     .then(() => {
+        console.log(data);
         if(Object.keys(data).length > 0){
             document.getElementById("book-id").value = data["id"];
             document.getElementById("book-title").value = data["title"];
-            document.getElementById("author-list").value = data["authors"][0].name;
+            document.getElementById("author-list").value = data["authors"][0].id;
         } 
     });    
 }
