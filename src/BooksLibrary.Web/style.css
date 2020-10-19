@@ -65,8 +65,34 @@ main{
     width: 100%;
 }
 
+.details{
+    background-color: #373b69;
+    color: #ebe5e2;
+    padding: 2rem;
+    position: absolute;
+    max-height: 100%;
+    overflow: auto;
+    left:0;
+    bottom:0;
+    right: 0;
+    transform: translateY(101%);
+    transition: transform 0.3s ease-in;
+}
+
+.details h3{
+    margin-top: 0;
+}
+
+.details li{
+    list-style-type: none;
+}
+
+.book:hover .details{
+    transform: translateY(0);
+}
+
 .book-info{
-    color: #EBE5E2;
+    color: #ebe5e2;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -117,15 +143,15 @@ main{
 }
 
 .book-window .title{
-    background-color: #373B69;
-    color: #EBE5E2;
+    background-color: #373b69;
+    color: #ebe5e2;
     display: flex;
     justify-content: center;
     padding: 0.5rem;
 }
 
 .book-window .book-info{
-    background-color: #EBE5E2;
+    background-color: #ebe5e2;
     color: #22254b;
     overflow: hidden;
     width: 100%;
@@ -152,8 +178,8 @@ main{
 }
 
 .book-window .toolbar{
-    background-color: #373B69;
-    color:#EBE5E2;
+    background-color: #373b69;
+    color:#ebe5e2;
     display:flex;
     justify-content: flex-end;
     padding: 0.5rem;

@@ -109,8 +109,34 @@ function showBook(book){
             <h3>${book.title}</h3>
         </div>
     `
+    bookEl.appendChild(createDetailsDiv(book.authors));
+    
 
     main.appendChild(bookEl);
+}
+
+function createDetailsDiv(authors){
+    const overviewEl = document.createElement("div");
+    overviewEl.classList.add("details");
+
+    const listAuthorEl = document.createElement("ul");
+
+    authors.forEach((x)=>{
+        const authorItem = createAuthorItem(x.name);
+        listAuthorEl.appendChild(authorItem);
+    });
+
+    overviewEl.appendChild(listAuthorEl);
+
+    return overviewEl;
+}
+
+function createAuthorItem(name){
+    const item = document.createElement("li");
+    const itemValue = document.createTextNode(name);
+    item.appendChild(itemValue);
+
+    return item;
 }
 
 /**
