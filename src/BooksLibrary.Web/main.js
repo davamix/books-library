@@ -61,10 +61,11 @@ function showBooks(books){
 function showBook(book){
     const bookEl = document.createElement("div");
     bookEl.classList.add("book");
+    bookEl.setAttribute("id", book.id);
 
     bookEl.innerHTML = `
         <img src="https://via.placeholder.com/300x410.webp?text=Book+Cover" title="${book.title}"/>
-        <input type="hidden" value="${book.id}"/>
+        
 
         <div class="book-info">
             <h3>${book.title}</h3>
@@ -72,10 +73,9 @@ function showBook(book){
     `
     bookEl.appendChild(createDetailsDiv(book.authors));
 
-    const bookId = bookEl.getElementsByTagName("input")[0].value;
+    // const bookId = bookEl.getElementsByTagName("input")[0].value;
     bookEl.addEventListener("click", (x)=>{
-        console.log("Click on cover", bookId);
-        editBook(bookId);
+        editBook(book.id);
     });
     
 
@@ -128,6 +128,9 @@ function addPlaceholder(){
     main.appendChild(bookEl);
 }
 
+/**
+ * Save the book info. Insert (POST) if no Id, otherwise, update (PUT) the info.
+ */
 function saveBook(){
     const bookId = document.getElementById("book-id").value;
     const bookTitle = document.getElementById("book-title").value;
@@ -143,16 +146,27 @@ function saveBook(){
         }]
     };
 
+    // Insert new book
     if(bookId == ""){
         postRequestTo(API_BOOK_URL, bookData)
         .then(resp => resp.json())
         .then(data => showBook(data))
         .then(() => closeBookWindow());
+    // Update the book info
     }else{
+        console.log("Updating: ", bookId);
         const url = API_BOOK_URL + bookId;
         putRequestTo(url, bookData)
         .then(resp => resp.json())
-        .then(data => console.log("TODO: Update book info on main screen"));
+        .then(data => {
+            // The book is added at the end
+            const bookDiv = document.getElementById(data.id);
+            bookDiv.parentNode.removeChild(bookDiv);
+            showBook(data);
+            // bookDiv.focus();
+            closeBookWindow();
+
+        });
     }
 }
 
@@ -165,11 +179,9 @@ function openBookWindow(data = {}){
     getRequestTo(GET_AUTHORS_URL)
     .then(resp => resp.json())
     .then(data =>{
-        console.log(data);
         addAuthorsToList(data);
     })
     .then(() => {
-        console.log(data);
         if(Object.keys(data).length > 0){
             document.getElementById("book-id").value = data["id"];
             document.getElementById("book-title").value = data["title"];

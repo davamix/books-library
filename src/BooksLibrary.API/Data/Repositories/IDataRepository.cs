@@ -7,7 +7,7 @@ namespace BooksLibrary.API.Data.Repositories
         T Get(string id);
         IList<T> Get();
         T Insert(T item);
-        void Update(string id, T item);
+        T Update(string id, T item);
         void Delete(string id);
 
         IList<T> Search(string query);

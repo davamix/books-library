@@ -36,22 +36,19 @@ namespace BooksLibrary.API.Data.StorageProviders
 
         public Book InsertBook(Book book){
             // If the author/s are new, then add them to the list of authors
-            foreach (var author in book.Authors)
-            {
-                if(!authors.Any(x=>x.Id.Equals(author.Id))){
-                    InsertAuthor(author);
-                }
-            }
-            
+            AddNewAuthors(book.Authors);
+
             books.Add(book);
 
             return book;
         }
 
-        public void UpdateBook(string id, Book book){
+        public Book UpdateBook(string id, Book book){
             var current = books.Single(x=>x.Id.Equals(id));
+            // If the author/s are new, then add them to the list of authors
+            AddNewAuthors(current.Authors);
 
-            current.MapFrom(book);
+            return current.MapFrom(book);
         }
 
         public void DeleteBook(string id){
@@ -80,10 +77,10 @@ namespace BooksLibrary.API.Data.StorageProviders
             return author;
         }
 
-        public void UpdateAuthor(string id, Author author){
+        public Author UpdateAuthor(string id, Author author){
             var current = authors.Single(x=>x.Id.Equals(id));
 
-            current.MapFrom(author);
+            return current.MapFrom(author);
         }
 
         public void DeleteAuthor(string id){
@@ -102,6 +99,15 @@ namespace BooksLibrary.API.Data.StorageProviders
         }
         public IList<Author> SearchAuthor(string query){
             return authors.Where(x=>x.Name.Contains(query)).ToList();
+        }
+
+        private void AddNewAuthors(IList<Author> authors){
+            foreach (var author in authors)
+            {
+                if(!authors.Any(x=>x.Id.Equals(author.Id))){
+                    InsertAuthor(author);
+                }
+            }
         }
     }
 }

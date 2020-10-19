@@ -12,10 +12,12 @@ namespace BooksLibrary.API.Entities
             this.Authors = new List<Author>();
         }
 
-        public override void MapFrom(Book item)
+        public override Book MapFrom(Book item)
         {
             this.Title = item.Title;
             this.Authors = item.Authors;
+
+            return this;
         }
     }
     

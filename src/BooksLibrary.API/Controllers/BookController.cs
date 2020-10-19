@@ -43,17 +43,17 @@ namespace BooksLibrary.API.Controllers
 
         [HttpPost]
         public ActionResult<Book> AddBook([FromBody] Book book){
-            book = dataRepository.Insert(book);
+            var newBook = dataRepository.Insert(book);
             // Return the book with Id
-            return Ok(book);
+            return Ok(newBook);
         }
 
         [HttpPut]
         [Route("{id}")]
         public ActionResult<Book> UpdateBook(string id, [FromBody] Book book){
-            dataRepository.Update(id, book);
+            var updatedBook = dataRepository.Update(id, book);
 
-            return Ok();
+            return Ok(updatedBook);
         }
 
         [HttpDelete]

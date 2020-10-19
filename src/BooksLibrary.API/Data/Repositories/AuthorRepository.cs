@@ -26,8 +26,8 @@ namespace BooksLibrary.API.Data.Repositories
             return author;
         }
 
-        public void Update(string id, Author item){
-            storageProvider.UpdateAuthor(id, item);
+        public Author Update(string id, Author item){
+            return storageProvider.UpdateAuthor(id, item);
         }
 
         public void Delete(string id){

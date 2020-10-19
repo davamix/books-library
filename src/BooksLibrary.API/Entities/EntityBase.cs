@@ -11,6 +11,6 @@ namespace BooksLibrary.API.Entities
             this.Id = id;
         }
 
-        public abstract void MapFrom(T item);
+        public abstract T MapFrom(T item);
     }
 }
