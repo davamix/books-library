@@ -26,46 +26,6 @@ saveBookButton.addEventListener("click", ()=>{
     saveBook();
 });
 
-// REQUESTS
-
-// async function getRequestTo(url){
-//     const resp = await fetch(url);
-
-//     return resp;
-// }
-
-// async function postRequestTo(url, data){
-//     const resp = await fetch(url, {
-//         method: "POST",
-//         headers: {
-//             "Content-Type":"application/json"
-//         },
-//         body: JSON.stringify(data)
-//     });
-
-//     return resp;
-// }
-
-// async function putRequestTo(url, data){
-//     const resp = await fetch(url, {
-//         method: "PUT",
-//         headers: {
-//             "Content-Type":"application/json"
-//         },
-//         body: JSON.stringify(data)
-//     });
-
-//     return resp;
-// }
-
-// async function deleteRequestTo(url){
-//     const resp = await fetch(url, {
-//         method: "DELETE"
-//     });
-
-//     return resp;
-// }
-
 async function loadBooks(){
     // const resp = await fetch("https://www.etnassoft.com/api/v1/get/?id=2617");
     // const resp = await fetch("https://localhost:5001/api/book/GetBooks")
@@ -104,12 +64,19 @@ function showBook(book){
 
     bookEl.innerHTML = `
         <img src="https://via.placeholder.com/300x410.webp?text=Book+Cover" title="${book.title}"/>
+        <input type="hidden" value="${book.id}"/>
 
         <div class="book-info">
             <h3>${book.title}</h3>
         </div>
     `
     bookEl.appendChild(createDetailsDiv(book.authors));
+
+    const bookId = bookEl.getElementsByTagName("input")[0].value;
+    bookEl.addEventListener("click", (x)=>{
+        console.log("Click on cover", bookId);
+        editBook(bookId);
+    });
     
 
     main.appendChild(bookEl);
@@ -164,9 +131,12 @@ function addPlaceholder(){
 function saveBook(){
     const bookId = document.getElementById("book-id").value;
     const bookTitle = document.getElementById("book-title").value;
+    const bookAuthor = document.getElementById("book-author").value;
 
+    // TODO: Check how to save authors in backend.
     const bookData = {
-        title: bookTitle
+        title: bookTitle,
+        author: bookAuthor
     };
 
     if(bookId == ""){
@@ -174,12 +144,17 @@ function saveBook(){
         .then(resp => resp.json())
         .then(data => showBook(data))
         .then(() => closeBookWindow());
+    }else{
+        const url = API_BOOK_URL + bookId;
+        putRequestTo(url, bookData)
+        .then(resp => resp.json())
+        .then(data => console.log("TODO: Update book info on main screen"));
     }
 }
 
 // BOOK WINDOW FUNCTIONS
 
-function openBookWindow(){
+function openBookWindow(data = {}){
     const bookWindow = document.getElementById("book-window");
     bookWindow.style.display = "block";
 
@@ -188,7 +163,14 @@ function openBookWindow(){
     .then(data =>{
         console.log(data);
         addAuthorsToList(data);
-    } );
+    })
+    .then(() => {
+        if(Object.keys(data).length > 0){
+            document.getElementById("book-id").value = data["id"];
+            document.getElementById("book-title").value = data["title"];
+            document.getElementById("author-list").value = data["authors"][0].name;
+        } 
+    });    
 }
 
 function closeBookWindow(){
@@ -216,6 +198,15 @@ function addAuthorsToList(authors){
 
         authorList.appendChild(optionElement);
     }
+}
+
+function editBook(bookId){
+    const url = API_BOOK_URL + bookId;
+    getRequestTo(url)
+    .then(resp => resp.json())
+    .then(data => {
+        openBookWindow(data);
+    });
 }
 
 
