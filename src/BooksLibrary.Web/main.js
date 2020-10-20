@@ -1,4 +1,4 @@
-import { getRequestTo, postRequestTo, putRequestTo, deleteRequestTo } from "./requests.mjs";
+import { getRequestTo, postRequestTo, putRequestTo, deleteRequestTo } from "./requests.js";
 
 const API_BOOK_URL = "https://localhost:5001/api/book/";
 const GET_BOOKS_URL = API_BOOK_URL + "GetBooks/";
