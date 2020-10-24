@@ -4,7 +4,8 @@ using BooksLibrary.API.Data.StorageProviders;
 
 namespace BooksLibrary.API.Data.Repositories
 {
-    public class AuthorRepository:IDataRepository<Author>{
+    public class AuthorRepository : IDataRepository<Author>
+    {
         private readonly IStorageProvider storageProvider;
 
         public AuthorRepository(IStorageProvider storageProvider)
@@ -12,29 +13,35 @@ namespace BooksLibrary.API.Data.Repositories
             this.storageProvider = storageProvider;
         }
 
-        public Author Get(string id){
+        public Author Get(string id)
+        {
             return storageProvider.GetAuthor(id);
         }
 
-        public IList<Author> Get(){
+        public IList<Author> Get()
+        {
             return storageProvider.GetAuthors();
         }
 
-        public Author Insert(Author item){
+        public Author Insert(Author item)
+        {
             var author = storageProvider.InsertAuthor(item);
 
             return author;
         }
 
-        public Author Update(string id, Author item){
+        public Author Update(string id, Author item)
+        {
             return storageProvider.UpdateAuthor(id, item);
         }
 
-        public void Delete(string id){
+        public void Delete(string id)
+        {
             storageProvider.DeleteAuthor(id);
         }
 
-        public IList<Author> Search(string query){
+        public IList<Author> Search(string query)
+        {
             return storageProvider.SearchAuthor(query);
         }
     }

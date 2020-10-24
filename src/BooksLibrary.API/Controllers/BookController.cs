@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using BooksLibrary.API.Data.Repositories;
 using BooksLibrary.API.Entities;
+using Microsoft.Extensions.Configuration;
 
 namespace BooksLibrary.API.Controllers
 {
@@ -9,10 +10,12 @@ namespace BooksLibrary.API.Controllers
     [Route("api/[controller]")]
     public class BookController : ControllerBase
     {
+        private readonly IConfiguration configuration;
         private readonly IDataRepository<Book> dataRepository;
 
-        public BookController(IDataRepository<Book> dataRepository)
+        public BookController(IConfiguration configuration, IDataRepository<Book> dataRepository)
         {
+            this.configuration = configuration;
             this.dataRepository = dataRepository;
         }
 

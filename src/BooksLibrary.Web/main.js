@@ -260,7 +260,7 @@ form.addEventListener("submit", (e)=>{
     const searchTerm = document.getElementById("search-input").value;
 
     if(searchTerm){
-        url = SEARCH_BOOK_URL + searchTerm;
+        const url = SEARCH_BOOK_URL + searchTerm;
 
         getRequestTo(url)
         .then(resp => resp.json())
