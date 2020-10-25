@@ -3,3 +3,6 @@
 obj/
 bin/
 out/
+
+# SQLite DB
+*.db

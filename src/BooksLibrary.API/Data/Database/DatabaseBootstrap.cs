@@ -54,7 +54,7 @@ namespace BooksLibrary.API.Data.Database
 
         private void CreateBookAuthorTable()
         {
-            var cmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS book_author(book_id TEXT NOT NULL UNIQUE, author_id TEXT NOT NULL UNIQUE)");
+            var cmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS book_author(book_id TEXT NOT NULL, author_id TEXT NOT NULL)");
             ExecuteCommand(cmd);
         }
 

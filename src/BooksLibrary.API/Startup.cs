@@ -14,6 +14,7 @@ using BooksLibrary.API.Data.Repositories;
 using BooksLibrary.API.Data.StorageProviders;
 using BooksLibrary.API.Data.Database;
 using BooksLibrary.API.Entities;
+using BooksLibrary.API.Data.Database.Queries;
 
 namespace BooksLibrary.API
 {
@@ -32,6 +33,8 @@ namespace BooksLibrary.API
             // services.AddSingleton<IStorageProvider, MemoryStorageProvider>();
             services.AddSingleton<IStorageProvider, SQLiteProvider>();
             services.AddSingleton<IDatabaseConfiguration, DatabaseConfiguration>();
+            services.AddSingleton<IQueryReader, QueryReader>();
+            services.AddSingleton<IQueryCommand, QueryCommand>();
             services.AddSingleton<IDatabaseBootstrap, DatabaseBootstrap>();
             services.AddScoped<IDataRepository<Book>, BookRepository>();
             services.AddScoped<IDataRepository<Author>, AuthorRepository>();

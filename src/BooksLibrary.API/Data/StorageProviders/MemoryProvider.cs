@@ -5,11 +5,11 @@ using BooksLibrary.API.Data.StorageProviders;
 
 namespace BooksLibrary.API.Data.StorageProviders
 {
-    public class MemoryStorageProvider : IStorageProvider{
+    public class MemoryProvider : IStorageProvider{
         IList<Book> books;
         IList<Author> authors;
 
-        public MemoryStorageProvider()
+        public MemoryProvider()
         {
             books = new List<Book>();
             authors = new List<Author>();
