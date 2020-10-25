@@ -182,7 +182,37 @@ namespace BooksLibrary.API.Data.StorageProviders
 
         public IList<Book> SearchBook(string query)
         {
-            throw new System.NotImplementedException();
+            // QUERY
+            var q = $@"SELECT b.id AS book_id, b.title, a.id, a.name
+                        FROM books AS b INNER JOIN book_author 
+                        ON b.id = book_author.book_id 
+                        INNER JOIN authors AS a 
+                        ON book_author.author_id = a.id 
+                        WHERE b.title LIKE '{query}';";
+
+            // MAPPER
+            Func<SqliteDataReader, IList<Book>> mapper = (SqliteDataReader reader) =>{
+                var books = new List<Book>();
+
+                while (reader.Read())
+                {
+                    books.Add(new Book
+                    {
+                        Id = reader.GetString(0),
+                        Title = reader.GetString(1),
+                        Authors = new List<Author>(){
+                                new Author{
+                                    Id = reader.GetString(2),
+                                    Name = reader.GetString(3)
+                                }
+                        }
+                    });
+                }
+
+                return books;
+            };
+
+            return queryReader.Execute(q, mapper);
         }
 
         public Author UpdateAuthor(string id, Author author)
