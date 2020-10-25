@@ -192,7 +192,28 @@ namespace BooksLibrary.API.Data.StorageProviders
 
         public Book UpdateBook(string id, Book book)
         {
-            throw new System.NotImplementedException();
+            // QUERY
+            var bookAuthorQueries = new List<string>();
+
+            foreach (var author in book.Authors)
+            {
+                bookAuthorQueries.Add($"INSERT INTO book_author(book_id, author_id) VALUES('{id}', '{author.Id}');");
+            }
+
+            var query = $@"BEGIN;
+                        DELETE FROM book_author WHERE book_id = '{id}';
+                        UPDATE books SET title = '{book.Title}' WHERE id = '{id}';
+                        {string.Join(string.Empty, bookAuthorQueries)}
+                        COMMIT;";
+
+            // EXECUTE
+            try{
+                queryCommand.Execute(query);
+            }catch(SqliteException){
+                throw;
+            }
+
+            return book;
         }
     }
 }
