@@ -154,7 +154,7 @@ namespace BooksLibrary.API.Data.StorageProviders
                         ON b.id = book_author.book_id 
                         INNER JOIN authors AS a 
                         ON book_author.author_id = a.id 
-                        WHERE b.title LIKE '{query}';";
+                        WHERE b.title LIKE '%{query}%';";
 
             // MAPPER
             Func<SqliteDataReader, IList<Book>> mapper = (SqliteDataReader reader) =>{
