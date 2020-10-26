@@ -12,6 +12,7 @@ const form = document.getElementById("form");
 const clearButton = document.getElementById("clear");
 const saveBookButton = document.getElementById("save");
 const closeWindowButton = document.getElementById("close");
+const filterAuthorInput = document.getElementById("author-filter-input");
 
 // EVENTS
 clearButton.addEventListener("click", ()=>{
@@ -24,6 +25,10 @@ closeWindowButton.addEventListener("click", ()=>{
 
 saveBookButton.addEventListener("click", ()=>{
     saveBook();
+});
+
+filterAuthorInput.addEventListener("keyup", (x)=>{
+    filterAuthor();
 });
 
 async function loadBooks(){
@@ -88,7 +93,6 @@ function showBook(book){
         deleteBook(book.id);
     });
     
-
     main.appendChild(bookEl);
 }
 
@@ -144,9 +148,8 @@ function addPlaceholder(){
 function saveBook(){
     const bookId = document.getElementById("book-id").value;
     const bookTitle = document.getElementById("book-title").value;
-    const authorList = document.getElementById("author-list");
-    const authorId = authorList.options[authorList.selectedIndex].value;
-    const authorName = authorList.options[authorList.selectedIndex].text;
+    const authorId = document.getElementById("author-filter-id").value;
+    const authorName = document.getElementById("author-filter-input").value;
 
     const bookData = {
         title: bookTitle,
@@ -164,7 +167,6 @@ function saveBook(){
         .then(() => closeBookWindow());
     // Update the book info
     }else{
-        console.log("Updating: ", bookId);
         const url = API_BOOK_URL + bookId;
         putRequestTo(url, bookData)
         .then(resp => resp.json())
@@ -206,7 +208,8 @@ function openBookWindow(data = {}){
         if(Object.keys(data).length > 0){
             document.getElementById("book-id").value = data["id"];
             document.getElementById("book-title").value = data["title"];
-            document.getElementById("author-list").value = data["authors"][0].id;
+            document.getElementById("author-filter-id").value = data["authors"][0].id;
+            document.getElementById("author-filter-input").value = data["authors"][0].name;
         } 
     });    
 }
@@ -220,22 +223,67 @@ function closeBookWindow(){
 function cleanBookWindow(){
     document.getElementById("book-id").value = "";
     document.getElementById("book-title").value = "";
+    document.getElementById("author-filter-id").value = "";
+    document.getElementById("author-filter-input").value = "";
 }
 
 function addAuthorsToList(authors){
-    const authorList = document.getElementById("author-list");
-
-    authorList.innerHTML = "";
+    const filterList = document.getElementById("author-filter-list");
+    filterList.innerHTML = "";
 
     for(let x=0; x<authors.length; x++){
-        const optionElement = document.createElement("option");
-        optionElement.setAttribute("value", authors[x].id);
-        
-        const optionText = document.createTextNode(authors[x].name);
-        optionElement.appendChild(optionText);
+        const optionElement = document.createElement("button");
+        optionElement.setAttribute("data-id", authors[x].id);
+        optionElement.setAttribute("data-name", authors[x].name);
 
-        authorList.appendChild(optionElement);
+        const textElement = document.createTextNode(authors[x].name);
+        optionElement.appendChild(textElement);
+
+        optionElement.addEventListener("click", (x)=>{
+            setFilterAuthorValue(optionElement.dataset.id, optionElement.dataset.name);
+        });
+
+        filterList.appendChild(optionElement);        
     }
+}
+
+/**
+ * Show a list of author that match with author-filter-input value
+ */
+function filterAuthor(){
+    const filterInputId = document.getElementById("author-filter-id");
+    const filterInput = document.getElementById("author-filter-input");
+    const filterList = document.getElementById("author-filter-list");
+    const filterOption = filterList.getElementsByTagName("button");
+
+    // Remove the author ID while typing
+    filterInputId.value = "";
+
+    filterList.style.display = "block";
+
+    for(let x=0; x<filterOption.length; x++){
+        const authorName = filterOption[x].dataset.name;
+        if((authorName.toUpperCase().indexOf(filterInput.value.toUpperCase()) > -1) && (filterInput.value.length > 0)){
+            filterOption[x].style.display = "block";
+        }else{
+            filterOption[x].style.display = "none";
+        }
+    }
+}
+
+/**
+ * Set the selected name from the list into the input
+ * @param {string} name 
+ */
+function setFilterAuthorValue(id, name){
+    const filterInput = document.getElementById("author-filter-input");
+    filterInput.value = name;
+
+    const filterInputId = document.getElementById("author-filter-id");
+    filterInputId.value = id;
+
+    const filterList = document.getElementById("author-filter-list");
+    filterList.style.display = "none";
 }
 
 function editBook(bookId){
@@ -246,7 +294,6 @@ function editBook(bookId){
         openBookWindow(data);
     });
 }
-
 
 loadBooks();
 

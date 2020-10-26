@@ -127,6 +127,7 @@ namespace BooksLibrary.API.Data.StorageProviders
                 throw;
             }
 
+            book.Id = id;
             return book;
         }
         
