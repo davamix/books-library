@@ -51,16 +51,11 @@ filterAuthorInput.addEventListener("keyup", (x)=>{
 
 
 async function loadBooks(){
-    // const resp = await fetch("https://www.etnassoft.com/api/v1/get/?id=2617");
-    // const resp = await fetch("https://localhost:5001/api/book/GetBooks")
     getRequestTo(GET_BOOKS_URL)
     .then(response => response.json())
     .then(data => {
-        console.log(data);
         showBooks(data);
     });
-
-    // return resp;
 }
 
 /**
@@ -71,7 +66,6 @@ function showBooks(books){
     main.innerHTML = "";
 
     addPlaceholder();
-    // return;
 
     books.forEach(book => {
         showBook(book);
@@ -277,14 +271,18 @@ function filterAuthor(){
     const filterList = document.getElementById("author-filter-list");
     const filterOption = filterList.getElementsByTagName("button");
 
+    if(filterOption.length <= 0) return; // No authors available
+
     // Remove the author ID while typing
     filterInputId.value = "";
 
     filterList.style.display = "block";
+    
 
     for(let x=0; x<filterOption.length; x++){
         const authorName = filterOption[x].dataset.name;
         if((authorName.toUpperCase().indexOf(filterInput.value.toUpperCase()) > -1) && (filterInput.value.length > 0)){
+            console.log("FILTER: ", authorName.toUpperCase().indexOf(filterInput.value.toUpperCase()));
             filterOption[x].style.display = "block";
         }else{
             filterOption[x].style.display = "none";
