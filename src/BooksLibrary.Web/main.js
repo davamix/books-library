@@ -14,6 +14,7 @@ const saveBookButton = document.getElementById("save");
 const closeWindowButton = document.getElementById("close");
 const filterAuthorInput = document.getElementById("author-filter-input");
 
+
 // EVENTS
 clearButton.addEventListener("click", ()=>{
     loadBooks();
@@ -24,12 +25,30 @@ closeWindowButton.addEventListener("click", ()=>{
 });
 
 saveBookButton.addEventListener("click", ()=>{
-    saveBook();
+    const authorId = document.getElementById("author-filter-id").value;
+    const authorName = document.getElementById("author-filter-input").value;
+
+    // If author does not exists, save it before save the book info
+    if(!authorId){
+        saveAuthor(authorName)
+        .then(data => {
+            document.getElementById("author-filter-id").value = data.id;
+            saveBook();
+        });
+    }else{
+        saveBook();
+    }
 });
 
 filterAuthorInput.addEventListener("keyup", (x)=>{
     filterAuthor();
+
+    if(x.key == "Escape"){
+        const filterAuthorList = document.getElementById("author-filter-list");
+        filterAuthorList.style.display = "none";
+    }
 });
+
 
 async function loadBooks(){
     // const resp = await fetch("https://www.etnassoft.com/api/v1/get/?id=2617");
@@ -225,6 +244,8 @@ function cleanBookWindow(){
     document.getElementById("book-title").value = "";
     document.getElementById("author-filter-id").value = "";
     document.getElementById("author-filter-input").value = "";
+    const filterList = document.getElementById("author-filter-list");
+    filterList.style.display = "none";
 }
 
 function addAuthorsToList(authors){
@@ -268,6 +289,10 @@ function filterAuthor(){
         }else{
             filterOption[x].style.display = "none";
         }
+
+        if(filterInput.value.length <= 0){
+            filterList.style.display = "none";
+        }
     }
 }
 
@@ -293,6 +318,17 @@ function editBook(bookId){
     .then(data => {
         openBookWindow(data);
     });
+}
+
+async function saveAuthor(name){
+    const authorData = {
+        name: name
+    };
+
+    const resp = await postRequestTo(API_AUTHOR_URL, authorData)
+                        .then(resp => resp.json());
+
+    return resp;
 }
 
 loadBooks();

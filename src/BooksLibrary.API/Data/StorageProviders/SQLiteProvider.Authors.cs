@@ -40,7 +40,18 @@ namespace BooksLibrary.API.Data.StorageProviders
         
         public Author InsertAuthor(Author author)
         {
-            throw new System.NotImplementedException();
+            // QUERY
+            var query = $@"INSERT INTO authors(id, name) VALUES('{author.Id}', '{author.Name}')";
+
+            //EXEXUTE
+            try{
+                queryCommand.Execute(query);
+            }catch(SqliteException){
+                throw;
+            }
+
+            return author;
+            
         }
 
         public Author UpdateAuthor(string id, Author author)

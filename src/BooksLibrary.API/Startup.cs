@@ -68,7 +68,7 @@ namespace BooksLibrary.API
                 endpoints.MapControllers();
             });
 
-            serviceProvider.GetService<IDatabaseBootstrap>().Setup(true);
+            serviceProvider.GetService<IDatabaseBootstrap>().Setup(false);
         }
     }
 }
