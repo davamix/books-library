@@ -1,5 +1,7 @@
 # Books Library (WIP)
 
+![Books library screenshot](images/capture1.webp)
+
 ## Build
 
 ```
