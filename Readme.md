@@ -23,3 +23,9 @@ Navigate to `localhost`
 <img src="https://github.com/davamix/books-library/blob/master/logos/js_logo.png" alt="Javascript" title="Javascript" width="32" > 
 <img src="https://github.com/davamix/books-library/blob/master/logos/docker_logo.png" alt="Docker" title="Docker" width="32" > 
 <img src="https://github.com/davamix/books-library/blob/master/logos/nginx_logo.png" alt="Nginx" title="Nginx" width="32" > 
+
+## Todo
+
+- [ ] Allow multiple authors
+- [ ] Search by author
+- [ ] Add book categories
