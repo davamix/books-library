@@ -42,7 +42,7 @@ namespace BooksLibrary.API.Data.Database
 
         private void CreateBookTable()
         {
-            var cmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS books(id TEXT NOT NULL UNIQUE, title TEXT NOT NULL)");
+            var cmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS books(id TEXT NOT NULL UNIQUE, title TEXT NOT NULL, image TEXT)");
             ExecuteCommand(cmd);
         }
 

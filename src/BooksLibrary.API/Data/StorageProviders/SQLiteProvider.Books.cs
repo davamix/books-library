@@ -10,7 +10,7 @@ namespace BooksLibrary.API.Data.StorageProviders
         public Book GetBook(string id)
         {
             // QUERY
-            var query = $@"SELECT b.id AS book_id, b.title, a.id, a.name
+            var query = $@"SELECT b.id AS book_id, b.title, b.image, a.id, a.name
                         FROM books AS b INNER JOIN book_author 
                         ON b.id = book_author.book_id 
                         INNER JOIN authors AS a 
@@ -26,10 +26,11 @@ namespace BooksLibrary.API.Data.StorageProviders
                     {
                         Id = reader.GetString(0),
                         Title = reader.GetString(1),
+                        Image = reader.GetString(2),
                         Authors = new List<Author>{
                                 new Author{
-                                    Id = reader.GetString(2),
-                                    Name = reader.GetString(3)
+                                    Id = reader.GetString(3),
+                                    Name = reader.GetString(4)
                                 }
                         }
                     };
@@ -45,7 +46,7 @@ namespace BooksLibrary.API.Data.StorageProviders
         public IList<Book> GetBooks()
         {
             // QUERY
-            var query = @"SELECT b.id AS book_id, b.title, a.id, a.name
+            var query = @"SELECT b.id AS book_id, b.title, b.image, a.id, a.name
                         FROM books AS b INNER JOIN book_author 
                         ON b.id = book_author.book_id 
                         INNER JOIN authors AS a 
@@ -62,10 +63,11 @@ namespace BooksLibrary.API.Data.StorageProviders
                     {
                         Id = reader.GetString(0),
                         Title = reader.GetString(1),
+                        Image = reader.GetString(2),
                         Authors = new List<Author>(){
                                 new Author{
-                                    Id = reader.GetString(2),
-                                    Name = reader.GetString(3)
+                                    Id = reader.GetString(3),
+                                    Name = reader.GetString(4)
                                 }
                         }
                     });
@@ -90,7 +92,7 @@ namespace BooksLibrary.API.Data.StorageProviders
             }
 
             var query = $@"BEGIN; 
-                        INSERT INTO books(id, title) VALUES('{book.Id}', '{book.Title}');
+                        INSERT INTO books(id, title, image) VALUES('{book.Id}', '{book.Title}', '{book.Image}');
                         {string.Join(string.Empty, bookAuthorQueries)}
                         COMMIT;";
 
@@ -116,7 +118,7 @@ namespace BooksLibrary.API.Data.StorageProviders
 
             var query = $@"BEGIN;
                         DELETE FROM book_author WHERE book_id = '{id}';
-                        UPDATE books SET title = '{book.Title}' WHERE id = '{id}';
+                        UPDATE books SET title = '{book.Title}', image = '{book.Image}' WHERE id = '{id}';
                         {string.Join(string.Empty, bookAuthorQueries)}
                         COMMIT;";
 
@@ -150,7 +152,7 @@ namespace BooksLibrary.API.Data.StorageProviders
         public IList<Book> SearchBook(string query)
         {
             // QUERY
-            var q = $@"SELECT b.id AS book_id, b.title, a.id, a.name
+            var q = $@"SELECT b.id AS book_id, b.title, b.image, a.id, a.name
                         FROM books AS b INNER JOIN book_author 
                         ON b.id = book_author.book_id 
                         INNER JOIN authors AS a 
@@ -167,10 +169,11 @@ namespace BooksLibrary.API.Data.StorageProviders
                     {
                         Id = reader.GetString(0),
                         Title = reader.GetString(1),
+                        Image = reader.GetString(2),
                         Authors = new List<Author>(){
                                 new Author{
-                                    Id = reader.GetString(2),
-                                    Name = reader.GetString(3)
+                                    Id = reader.GetString(3),
+                                    Name = reader.GetString(4)
                                 }
                         }
                     });

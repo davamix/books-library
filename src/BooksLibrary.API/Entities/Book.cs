@@ -3,11 +3,13 @@ using BooksLibrary.API.Entities;
 
 namespace BooksLibrary.API.Entities
 {
-    public class Book : EntityBase<Book>{
+    public class Book : EntityBase<Book>
+    {
         public string Title { get; set; }
+        public string Image { get; set; }
         public IList<Author> Authors { get; set; }
 
-        public Book():base()
+        public Book() : base()
         {
             this.Authors = new List<Author>();
         }
@@ -20,5 +22,5 @@ namespace BooksLibrary.API.Entities
             return this;
         }
     }
-    
+
 }

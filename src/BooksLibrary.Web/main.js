@@ -13,6 +13,8 @@ const clearButton = document.getElementById("clear");
 const saveBookButton = document.getElementById("save");
 const closeWindowButton = document.getElementById("close");
 const filterAuthorInput = document.getElementById("author-filter-input");
+const selectCoverButton = document.getElementById("select-cover");
+const selectCoverDialog = document.getElementById("select-cover-dialog");
 
 
 // EVENTS
@@ -40,14 +42,44 @@ saveBookButton.addEventListener("click", ()=>{
     }
 });
 
-filterAuthorInput.addEventListener("keyup", (x)=>{
+filterAuthorInput.addEventListener("keyup", (e)=>{
     filterAuthor();
 
-    if(x.key == "Escape"){
+    if(e.key == "Escape"){
         const filterAuthorList = document.getElementById("author-filter-list");
         filterAuthorList.style.display = "none";
     }
 });
+
+selectCoverButton.addEventListener("click", (e)=>{
+    if(selectCoverDialog){
+        selectCoverDialog.click();
+    }
+
+    e.preventDefault();
+}, false);
+
+selectCoverDialog.addEventListener("change", handleFiles, false);
+
+function handleFiles(){
+    if(this.files.length){
+        // Clear the current image
+        selectCoverButton.innerHTML = ""
+
+        const reader = new FileReader();
+        reader.onload = ()=>{
+            // Add the new image to the button
+            const img = document.createElement("img");
+            img.src = reader.result;
+            selectCoverButton.appendChild(img);
+
+            const coverData = document.getElementById("cover-data");
+            coverData.value = reader.result;
+        }
+
+        reader.readAsDataURL(this.files[0]);
+    }    
+}
 
 
 async function loadBooks(){
@@ -78,20 +110,20 @@ function showBooks(books){
  */
 function showBook(book){
     const bookEl = document.createElement("div");
+    const coverImage = (book.image) ? book.image : "https://via.placeholder.com/300x410.webp?text=Book+Cover";
+
     bookEl.classList.add("book");
     bookEl.setAttribute("id", book.id);
-
+    
     bookEl.innerHTML = `
         <div class="details-top">
             <button class="remove-btn" id="remove-btn" title="Remove book">
                 <i class="far fa-trash-alt"></i>
             </button>
         </div>
-        <img src="https://via.placeholder.com/300x410.webp?text=Book+Cover" title="${book.title}"/>
-        
-        
+        <img src="${coverImage}" class="cover" title="${book.title}"/>
 
-        <div class="book-info">
+        <div class="book-info-panel">
             <h3>${book.title}</h3>
         </div>
     `
@@ -163,9 +195,11 @@ function saveBook(){
     const bookTitle = document.getElementById("book-title").value;
     const authorId = document.getElementById("author-filter-id").value;
     const authorName = document.getElementById("author-filter-input").value;
+    const coverImage = document.getElementById("cover-data").value;
 
     const bookData = {
         title: bookTitle,
+        image: coverImage,
         authors: [{
             id: authorId,
             name: authorName
@@ -221,8 +255,18 @@ function openBookWindow(data = {}){
         if(Object.keys(data).length > 0){
             document.getElementById("book-id").value = data["id"];
             document.getElementById("book-title").value = data["title"];
+            // Add authors data
             document.getElementById("author-filter-id").value = data["authors"][0].id;
             document.getElementById("author-filter-input").value = data["authors"][0].name;
+            // Add cover image data
+            document.getElementById("cover-data").value = data["image"];
+            if(data["image"]){
+                const img = document.createElement("img");
+                img.src = data["image"];
+                selectCoverButton.innerHTML = "";
+                selectCoverButton.appendChild(img);
+            }
+            
         } 
     });    
 }
@@ -236,10 +280,15 @@ function closeBookWindow(){
 function cleanBookWindow(){
     document.getElementById("book-id").value = "";
     document.getElementById("book-title").value = "";
+    // Clear authors data
     document.getElementById("author-filter-id").value = "";
     document.getElementById("author-filter-input").value = "";
     const filterList = document.getElementById("author-filter-list");
     filterList.style.display = "none";
+    // Clear cover image data
+    document.getElementById("cover-data").value = "";
+    selectCoverButton.innerHTML = `<i class="far fa-image fa-3x"></i>`;
+    
 }
 
 function addAuthorsToList(authors){
@@ -278,11 +327,10 @@ function filterAuthor(){
 
     filterList.style.display = "block";
     
-
     for(let x=0; x<filterOption.length; x++){
         const authorName = filterOption[x].dataset.name;
         if((authorName.toUpperCase().indexOf(filterInput.value.toUpperCase()) > -1) && (filterInput.value.length > 0)){
-            console.log("FILTER: ", authorName.toUpperCase().indexOf(filterInput.value.toUpperCase()));
+            // console.log("FILTER: ", authorName.toUpperCase().indexOf(filterInput.value.toUpperCase()));
             filterOption[x].style.display = "block";
         }else{
             filterOption[x].style.display = "none";

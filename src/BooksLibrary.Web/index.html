@@ -32,21 +32,28 @@
             <span class="title">Book info</span>
 
             <div class="book-info">
-                <input type="hidden" name="book-id" id="book-id"/>
-                <label>
-                    Title
-                    <input type="text" placeholder="Book's title" name="book-title" id="book-title"/>
-                </label>
-                <label>
-                    Author
-                    <input type="hidden" id="author-filter-id">
-                    
-                    <input type="text" placeholder="Author's name" id="author-filter-input">
-                    <div class="author-filter-list" id="author-filter-list">
+                <div>
+                    <input type="hidden" name="book-id" id="book-id"/>
+                    <label>
+                        Title
+                        <input type="text" placeholder="Book's title" name="book-title" id="book-title"/>
+                    </label>
+                    <label>
+                        Author
+                        <input type="hidden" id="author-filter-id"/>
                         
-                    </div>
-                    
-                </label>
+                        <input type="text" placeholder="Author's name" id="author-filter-input">
+                        <div class="author-filter-list" id="author-filter-list">
+                        </div>
+                    </label>
+                </div>
+                <div class="right">
+                    <input type="hidden" id="cover-data"/>
+                    <input type="file" id="select-cover-dialog" accept="image/*" style="display: none;">
+                    <button class="select-cover" id="select-cover" title="Select image cover">
+                        <i class="far fa-image fa-3x"></i>
+                    </button>
+                </div>
             </div>
 
             <div class="toolbar">
