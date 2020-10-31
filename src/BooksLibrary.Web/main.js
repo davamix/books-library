@@ -1,100 +1,60 @@
 import { getRequestTo, postRequestTo, putRequestTo, deleteRequestTo } from "./requests.js";
+import { openBookWindow } from "./book-window.js";
+import { searchTitle } from "./search.js";
+import * as urls from "./urls.js";
 
-const API_BOOK_URL = "https://localhost:5001/api/book/";
-const GET_BOOKS_URL = API_BOOK_URL + "GetBooks/";
-const SEARCH_BOOK_URL = API_BOOK_URL + "Search?query=";
-
-const API_AUTHOR_URL = "https://localhost:5001/api/author/";
-const GET_AUTHORS_URL = API_AUTHOR_URL + "GetAuthors/"
-
+// ELEMENTS
 const main = document.getElementById("main");
 const form = document.getElementById("form");
 const clearButton = document.getElementById("clear");
-const saveBookButton = document.getElementById("save");
-const closeWindowButton = document.getElementById("close");
-const filterAuthorInput = document.getElementById("author-filter-input");
-const selectCoverButton = document.getElementById("select-cover");
-const selectCoverDialog = document.getElementById("select-cover-dialog");
-
 
 // EVENTS
-clearButton.addEventListener("click", ()=>{
+document.addEventListener("book-saved", (event) => {
+    showBook(event.detail.book);
+});
+
+document.addEventListener("book-updated", (event) => {
+    // Remove existing book element
+    const bookDiv = document.getElementById(event.detail.book.id);
+    bookDiv.parentNode.removeChild(bookDiv);
+
+    // Show updated book
+    showBook(event.detail.book);
+});
+
+document.addEventListener("title-found", (event) =>{
+    showBooks(event.detail.books);
+});
+
+clearButton.addEventListener("click", () => {
     loadBooks();
 });
 
-closeWindowButton.addEventListener("click", ()=>{
-    closeBookWindow();
-});
-
-saveBookButton.addEventListener("click", ()=>{
-    const authorId = document.getElementById("author-filter-id").value;
-    const authorName = document.getElementById("author-filter-input").value;
-
-    // If author does not exists, save it before save the book info
-    if(!authorId){
-        saveAuthor(authorName)
-        .then(data => {
-            document.getElementById("author-filter-id").value = data.id;
-            saveBook();
-        });
-    }else{
-        saveBook();
-    }
-});
-
-filterAuthorInput.addEventListener("keyup", (e)=>{
-    filterAuthor();
-
-    if(e.key == "Escape"){
-        const filterAuthorList = document.getElementById("author-filter-list");
-        filterAuthorList.style.display = "none";
-    }
-});
-
-selectCoverButton.addEventListener("click", (e)=>{
-    if(selectCoverDialog){
-        selectCoverDialog.click();
-    }
-
+// Search input
+form.addEventListener("submit", (e) => {
     e.preventDefault();
-}, false);
 
-selectCoverDialog.addEventListener("change", handleFiles, false);
+    const searchTerm = document.getElementById("search-input").value;
 
-function handleFiles(){
-    if(this.files.length){
-        // Clear the current image
-        selectCoverButton.innerHTML = ""
+    if (searchTerm) {
+        searchTitle(searchTerm);
+    }
+});
 
-        const reader = new FileReader();
-        reader.onload = ()=>{
-            // Add the new image to the button
-            const img = document.createElement("img");
-            img.src = reader.result;
-            selectCoverButton.appendChild(img);
-
-            const coverData = document.getElementById("cover-data");
-            coverData.value = reader.result;
-        }
-
-        reader.readAsDataURL(this.files[0]);
-    }    
-}
-
-
-async function loadBooks(){
-    getRequestTo(GET_BOOKS_URL)
-    .then(response => response.json())
-    .then(data => {
-        showBooks(data);
-    });
+// FUNCTIONS
+async function loadBooks() {
+    getRequestTo(urls.GET_BOOKS_URL)
+        .then(response => response.json())
+        .then(data => {
+            showBooks(data);
+        });
 }
 
 /**
  * Loop over the list of books and display info
  * @param {Book[]} books - List of books
  */
-function showBooks(books){
+function showBooks(books) {
     main.innerHTML = "";
 
     addPlaceholder();
@@ -105,16 +65,16 @@ function showBooks(books){
 }
 
 /**
- * Display book info
+ * Generate the elements to show the book on the main window
  * @param {Book} book - Book info
  */
-function showBook(book){
+function showBook(book) {
     const bookEl = document.createElement("div");
     const coverImage = (book.image) ? book.image : "https://via.placeholder.com/300x410.webp?text=Book+Cover";
 
     bookEl.classList.add("book");
     bookEl.setAttribute("id", book.id);
-    
+
     bookEl.innerHTML = `
         <div class="details-top">
             <button class="remove-btn" id="remove-btn" title="Remove book">
@@ -128,26 +88,26 @@ function showBook(book){
         </div>
     `
     bookEl.appendChild(createDetailsDiv(book.authors));
-    bookEl.addEventListener("click", (x)=>{
+    bookEl.addEventListener("click", (x) => {
         editBook(book.id);
     });
 
     const removeButton = bookEl.querySelector(".remove-btn");
-    removeButton.addEventListener("click", (x)=>{
+    removeButton.addEventListener("click", (x) => {
         x.stopPropagation();
         deleteBook(book.id);
     });
-    
+
     main.appendChild(bookEl);
 }
 
-function createDetailsDiv(authors){
+function createDetailsDiv(authors) {
     const overviewEl = document.createElement("div");
     overviewEl.classList.add("details-bottom");
 
     const listAuthorEl = document.createElement("ul");
 
-    authors.forEach((x)=>{
+    authors.forEach((x) => {
         const authorItem = createAuthorItem(x.name);
         listAuthorEl.appendChild(authorItem);
     });
@@ -157,7 +117,7 @@ function createDetailsDiv(authors){
     return overviewEl;
 }
 
-function createAuthorItem(name){
+function createAuthorItem(name) {
     const item = document.createElement("li");
     const itemValue = document.createTextNode(name);
     item.appendChild(itemValue);
@@ -168,7 +128,7 @@ function createAuthorItem(name){
 /**
  * Add a placeholder at the beginning that works as a button to allow add a new book.
  */
-function addPlaceholder(){
+function addPlaceholder() {
     const bookEl = document.createElement("div");
     bookEl.setAttribute("id", "book-placeholder");
     bookEl.classList.add("book-placeholder");
@@ -180,219 +140,36 @@ function addPlaceholder(){
     `
 
     const addButton = bookEl.querySelector(".add-book");
-    addButton.addEventListener("click", ()=>{
+    addButton.addEventListener("click", () => {
         openBookWindow();
     });
 
     main.appendChild(bookEl);
 }
 
+function deleteBook(bookId) {
+    const url = urls.API_BOOK_URL + bookId;
+    deleteRequestTo(url)
+        .then(resp => {
+            if (resp.ok) {
+                const bookDiv = document.getElementById(bookId);
+                bookDiv.parentNode.removeChild(bookDiv);
+            }
+        });
+}
+
 /**
- * Save the book info. Insert (POST) if no Id, otherwise, update (PUT) the info.
+ * Open the book window with the book's info for editing
+ * @param {string} bookId 
  */
-function saveBook(){
-    const bookId = document.getElementById("book-id").value;
-    const bookTitle = document.getElementById("book-title").value;
-    const authorId = document.getElementById("author-filter-id").value;
-    const authorName = document.getElementById("author-filter-input").value;
-    const coverImage = document.getElementById("cover-data").value;
-
-    const bookData = {
-        title: bookTitle,
-        image: coverImage,
-        authors: [{
-            id: authorId,
-            name: authorName
-        }]
-    };
-
-    // Insert new book
-    if(bookId == ""){
-        postRequestTo(API_BOOK_URL, bookData)
-        .then(resp => resp.json())
-        .then(data => showBook(data))
-        .then(() => closeBookWindow());
-    // Update the book info
-    }else{
-        const url = API_BOOK_URL + bookId;
-        putRequestTo(url, bookData)
+function editBook(bookId) {
+    const url = urls.API_BOOK_URL + bookId;
+    getRequestTo(url)
         .then(resp => resp.json())
         .then(data => {
-            // The book is added at the end
-            const bookDiv = document.getElementById(data.id);
-            bookDiv.parentNode.removeChild(bookDiv);
-            showBook(data);
-            // bookDiv.focus();
-            closeBookWindow();
-
+            openBookWindow(data);
         });
-    }
 }
 
-function deleteBook(bookId){
-    const url = API_BOOK_URL + bookId;
-    deleteRequestTo(url)
-    .then(resp => {
-        if(resp.ok){
-            const bookDiv = document.getElementById(bookId);
-            bookDiv.parentNode.removeChild(bookDiv);
-        }
-    });
-}
-
-// BOOK WINDOW FUNCTIONS
-
-function openBookWindow(data = {}){
-    const bookWindow = document.getElementById("book-window");
-    bookWindow.style.display = "block";
-
-    getRequestTo(GET_AUTHORS_URL)
-    .then(resp => resp.json())
-    .then(data =>{
-        addAuthorsToList(data);
-    })
-    .then(() => {
-        if(Object.keys(data).length > 0){
-            document.getElementById("book-id").value = data["id"];
-            document.getElementById("book-title").value = data["title"];
-            // Add authors data
-            document.getElementById("author-filter-id").value = data["authors"][0].id;
-            document.getElementById("author-filter-input").value = data["authors"][0].name;
-            // Add cover image data
-            document.getElementById("cover-data").value = data["image"];
-            if(data["image"]){
-                const img = document.createElement("img");
-                img.src = data["image"];
-                selectCoverButton.innerHTML = "";
-                selectCoverButton.appendChild(img);
-            }
-            
-        } 
-    });    
-}
-
-function closeBookWindow(){
-    const bookWindow = document.getElementById("book-window");
-    bookWindow.style.display = "none";
-    cleanBookWindow();
-}
-
-function cleanBookWindow(){
-    document.getElementById("book-id").value = "";
-    document.getElementById("book-title").value = "";
-    // Clear authors data
-    document.getElementById("author-filter-id").value = "";
-    document.getElementById("author-filter-input").value = "";
-    const filterList = document.getElementById("author-filter-list");
-    filterList.style.display = "none";
-    // Clear cover image data
-    document.getElementById("cover-data").value = "";
-    selectCoverButton.innerHTML = `<i class="far fa-image fa-3x"></i>`;
-    
-}
-
-function addAuthorsToList(authors){
-    const filterList = document.getElementById("author-filter-list");
-    filterList.innerHTML = "";
-
-    for(let x=0; x<authors.length; x++){
-        const optionElement = document.createElement("button");
-        optionElement.setAttribute("data-id", authors[x].id);
-        optionElement.setAttribute("data-name", authors[x].name);
-
-        const textElement = document.createTextNode(authors[x].name);
-        optionElement.appendChild(textElement);
-
-        optionElement.addEventListener("click", (x)=>{
-            setFilterAuthorValue(optionElement.dataset.id, optionElement.dataset.name);
-        });
-
-        filterList.appendChild(optionElement);        
-    }
-}
-
-/**
- * Show a list of author that match with author-filter-input value
- */
-function filterAuthor(){
-    const filterInputId = document.getElementById("author-filter-id");
-    const filterInput = document.getElementById("author-filter-input");
-    const filterList = document.getElementById("author-filter-list");
-    const filterOption = filterList.getElementsByTagName("button");
-
-    if(filterOption.length <= 0) return; // No authors available
-
-    // Remove the author ID while typing
-    filterInputId.value = "";
-
-    filterList.style.display = "block";
-    
-    for(let x=0; x<filterOption.length; x++){
-        const authorName = filterOption[x].dataset.name;
-        if((authorName.toUpperCase().indexOf(filterInput.value.toUpperCase()) > -1) && (filterInput.value.length > 0)){
-            // console.log("FILTER: ", authorName.toUpperCase().indexOf(filterInput.value.toUpperCase()));
-            filterOption[x].style.display = "block";
-        }else{
-            filterOption[x].style.display = "none";
-        }
-
-        if(filterInput.value.length <= 0){
-            filterList.style.display = "none";
-        }
-    }
-}
-
-/**
- * Set the selected name from the list into the input
- * @param {string} name 
- */
-function setFilterAuthorValue(id, name){
-    const filterInput = document.getElementById("author-filter-input");
-    filterInput.value = name;
-
-    const filterInputId = document.getElementById("author-filter-id");
-    filterInputId.value = id;
-
-    const filterList = document.getElementById("author-filter-list");
-    filterList.style.display = "none";
-}
-
-function editBook(bookId){
-    const url = API_BOOK_URL + bookId;
-    getRequestTo(url)
-    .then(resp => resp.json())
-    .then(data => {
-        openBookWindow(data);
-    });
-}
-
-async function saveAuthor(name){
-    const authorData = {
-        name: name
-    };
-
-    const resp = await postRequestTo(API_AUTHOR_URL, authorData)
-                        .then(resp => resp.json());
-
-    return resp;
-}
 
 loadBooks();
-
-
-/**
- * Search book
- */
-form.addEventListener("submit", (e)=>{
-    e.preventDefault();
-
-    const searchTerm = document.getElementById("search-input").value;
-
-    if(searchTerm){
-        const url = SEARCH_BOOK_URL + searchTerm;
-
-        getRequestTo(url)
-        .then(resp => resp.json())
-        .then(data=>showBooks(data));
-    }
-})
