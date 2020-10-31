@@ -3,7 +3,7 @@ version: "3.7"
 services: 
     backend:
         build: ./src/BooksLibrary.API
-        image: books-library:alpha
+        image: books-library:backend
         ports:
             - "5001:443"
         environment: 

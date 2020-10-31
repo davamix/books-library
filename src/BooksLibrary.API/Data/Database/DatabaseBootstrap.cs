@@ -35,18 +35,20 @@ namespace BooksLibrary.API.Data.Database
 
         private void CreateTables()
         {
-            CreateBookTable();
-            CreateAuthorTable();
+            CreateBooksTable();
+            CreateAuthorsTable();
             CreateBookAuthorTable();
+            CreateCategoriesTable();
+            CreateBookCategoryTable();
         }
 
-        private void CreateBookTable()
+        private void CreateBooksTable()
         {
             var cmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS books(id TEXT NOT NULL UNIQUE, title TEXT NOT NULL, image TEXT)");
             ExecuteCommand(cmd);
         }
 
-        private void CreateAuthorTable()
+        private void CreateAuthorsTable()
         {
             var cmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS authors(id TEXT NOT NULL UNIQUE, name TEXT NOT NULL)");
             ExecuteCommand(cmd);
@@ -55,6 +57,16 @@ namespace BooksLibrary.API.Data.Database
         private void CreateBookAuthorTable()
         {
             var cmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS book_author(book_id TEXT NOT NULL, author_id TEXT NOT NULL)");
+            ExecuteCommand(cmd);
+        }
+
+        private void CreateCategoriesTable(){
+            var cmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS categories(category_id TEXT NOT NULL, name TEXT NOT NULL)");
+            ExecuteCommand(cmd);
+        }
+
+        private void CreateBookCategoryTable(){
+            var cmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS book_category(book_id TEXT NOT NULL, category_id TEXT NOT NULL)");
             ExecuteCommand(cmd);
         }
 

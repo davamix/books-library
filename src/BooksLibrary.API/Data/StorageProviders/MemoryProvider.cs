@@ -109,5 +109,35 @@ namespace BooksLibrary.API.Data.StorageProviders
                 }
             }
         }
+
+        public Category InsertCategory(Category category)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Category UpdateCategory(string id, Category category)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void DeleteCategory(string id)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public IList<Category> GetCategories()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Category GetCategory(string id)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public IList<Category> SearchCategory(string query)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

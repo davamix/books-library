@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using BooksLibrary.API.Entities;
 
 namespace BooksLibrary.API.Entities
 {
