@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using BooksLibrary.API.Entities;
 using Microsoft.Data.Sqlite;
+using BooksLibrary.API.Data.Database.Extensions;
 
 namespace BooksLibrary.API.Data.StorageProviders
 {
@@ -26,8 +27,8 @@ namespace BooksLibrary.API.Data.StorageProviders
                 {
                     authors.Add(new Author
                     {
-                        Id = reader.GetString(0),
-                        Name = reader.GetString(1)
+                        Id = reader.GetValue<string>(0),
+                        Name = reader.GetValue<string>(1)
                     });
                 }
 

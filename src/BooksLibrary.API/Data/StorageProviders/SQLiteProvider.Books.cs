@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using BooksLibrary.API.Entities;
 using Microsoft.Data.Sqlite;
+using BooksLibrary.API.Data.Database.Extensions;
 
 namespace BooksLibrary.API.Data.StorageProviders
 {
@@ -24,13 +25,13 @@ namespace BooksLibrary.API.Data.StorageProviders
                 {
                     return new Book
                     {
-                        Id = reader.GetString(0),
-                        Title = reader.GetString(1),
-                        Image = reader.GetString(2),
+                        Id = reader.GetValue<string>(0),
+                        Title = reader.GetValue<string>(1),
+                        Image = reader.GetValue<string>(2, true),
                         Authors = new List<Author>{
                                 new Author{
-                                    Id = reader.GetString(3),
-                                    Name = reader.GetString(4)
+                                    Id = reader.GetValue<string>(3),
+                                    Name = reader.GetValue<string>(4)
                                 }
                         }
                     };
@@ -61,13 +62,13 @@ namespace BooksLibrary.API.Data.StorageProviders
                 {
                     books.Add(new Book
                     {
-                        Id = reader.GetString(0),
-                        Title = reader.GetString(1),
-                        Image = reader.GetString(2),
+                        Id = reader.GetValue<string>(0),
+                        Title = reader.GetValue<string>(1),
+                        Image = reader.GetValue<string>(2, true),
                         Authors = new List<Author>(){
                                 new Author{
-                                    Id = reader.GetString(3),
-                                    Name = reader.GetString(4)
+                                    Id = reader.GetValue<string>(3),
+                                    Name = reader.GetValue<string>(4)
                                 }
                         }
                     });
@@ -97,12 +98,15 @@ namespace BooksLibrary.API.Data.StorageProviders
                         COMMIT;";
 
             // EXECUTE
-            try{
+            try
+            {
                 queryCommand.Execute(query);
-            }catch(SqliteException){
+            }
+            catch (SqliteException)
+            {
                 throw;
             }
-            
+
             return book;
         }
 
@@ -123,16 +127,19 @@ namespace BooksLibrary.API.Data.StorageProviders
                         COMMIT;";
 
             // EXECUTE
-            try{
+            try
+            {
                 queryCommand.Execute(query);
-            }catch(SqliteException){
+            }
+            catch (SqliteException)
+            {
                 throw;
             }
 
             book.Id = id;
             return book;
         }
-        
+
         public void DeleteBook(string id)
         {
             // QUERY
@@ -142,9 +149,12 @@ namespace BooksLibrary.API.Data.StorageProviders
                         COMMIT;";
 
             // EXECUTE
-            try{
+            try
+            {
                 queryCommand.Execute(query);
-            }catch(SqliteException){
+            }
+            catch (SqliteException)
+            {
                 throw;
             }
         }
@@ -160,20 +170,21 @@ namespace BooksLibrary.API.Data.StorageProviders
                         WHERE b.title LIKE '%{query}%';";
 
             // MAPPER
-            Func<SqliteDataReader, IList<Book>> mapper = (SqliteDataReader reader) =>{
+            Func<SqliteDataReader, IList<Book>> mapper = (SqliteDataReader reader) =>
+            {
                 var books = new List<Book>();
 
                 while (reader.Read())
                 {
                     books.Add(new Book
                     {
-                        Id = reader.GetString(0),
-                        Title = reader.GetString(1),
-                        Image = reader.GetString(2),
+                        Id = reader.GetValue<string>(0),
+                        Title = reader.GetValue<string>(1),
+                        Image = reader.GetValue<string>(2, true),
                         Authors = new List<Author>(){
                                 new Author{
-                                    Id = reader.GetString(3),
-                                    Name = reader.GetString(4)
+                                    Id = reader.GetValue<string>(3),
+                                    Name = reader.GetValue<string>(4)
                                 }
                         }
                     });
@@ -181,7 +192,7 @@ namespace BooksLibrary.API.Data.StorageProviders
 
                 return books;
             };
-            
+
             // EXECUTE
             return queryReader.Execute(q, mapper);
         }
