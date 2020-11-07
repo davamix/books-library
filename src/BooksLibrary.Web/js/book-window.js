@@ -263,6 +263,9 @@ function cleanBookWindow() {
     // Clear cover image data
     document.getElementById("cover-data").value = "";
     selectCoverButton.innerHTML = `<i class="far fa-image fa-3x"></i>`;
+    // Clear categories
+    document.getElementById("input-tag").value = "";
+    document.getElementById("tag-bar").innerHTML = "";
 }
 
 async function saveAuthor(name) {
