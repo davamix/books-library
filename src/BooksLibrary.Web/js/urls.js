@@ -5,3 +5,5 @@ export const SEARCH_BOOK_URL = API_BOOK_URL + "Search?query=";
 export const API_AUTHOR_URL = "https://localhost:5001/api/author/";
 export const GET_AUTHORS_URL = API_AUTHOR_URL + "GetAuthors/"
 
+export const API_CATEGORY_URL = "https://localhost:5001/api/category/";
+export const GET_CATEGORIES_URL = API_CATEGORY_URL + "GetCategories/";

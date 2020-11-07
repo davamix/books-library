@@ -196,6 +196,7 @@ main{
     border: 1px solid #373b69;
     height: 100%;
     width: 60%;
+    max-height: 180px;
     cursor: pointer;
     
 }
@@ -266,4 +267,20 @@ main{
 
 .author-filter-list button:hover{
     background-color: #ddd;
+}
+
+.tag{
+    background-color: #373b69;
+    color: #eee;
+    border: 1px solid;
+    border-radius: 5px;
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+.tag-bar{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 5px;
 }

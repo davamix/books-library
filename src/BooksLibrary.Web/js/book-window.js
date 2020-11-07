@@ -1,4 +1,5 @@
 import { getRequestTo, postRequestTo, putRequestTo } from "./requests.js";
+import * as storage from "./storage.js";
 import * as urls from "./urls.js";
 
 // ELEMENTS
@@ -7,26 +8,18 @@ const closeWindowButton = document.getElementById("close");
 const filterAuthorInput = document.getElementById("author-filter-input");
 const selectCoverButton = document.getElementById("select-cover");
 const selectCoverDialog = document.getElementById("select-cover-dialog");
+const inputTag = document.getElementById("input-tag");
+const tagBar = document.getElementById("tag-bar");
 
 // EVENTS
 closeWindowButton.addEventListener("click", () => {
     closeBookWindow();
 });
 
-saveBookButton.addEventListener("click", () => {
-    const authorId = document.getElementById("author-filter-id").value;
-    const authorName = document.getElementById("author-filter-input").value;
+saveBookButton.addEventListener("click", (e) => {
+    e.preventDefault();
 
-    // If author does not exists, save it before save the book info
-    if (!authorId) {
-        saveAuthor(authorName)
-            .then(data => {
-                document.getElementById("author-filter-id").value = data.id;
-                saveBook();
-            });
-    } else {
-        saveBook();
-    }
+    saveBook();
 });
 
 filterAuthorInput.addEventListener("keyup", (e) => {
@@ -48,18 +41,37 @@ selectCoverButton.addEventListener("click", (e) => {
 
 selectCoverDialog.addEventListener("change", showCoverImage, false);
 
+inputTag.addEventListener("keyup", (x) => {
+    // filterTag();
+
+    if (x.key == "Enter") {
+        tagBar.appendChild(createTag(inputTag.value));
+
+        storage.addBookCategory(inputTag.value);
+
+        inputTag.value = "";
+    }
+});
+
 // FUNCTIONS
 function openBookWindow(data = {}) {
     const bookWindow = document.getElementById("book-window");
     bookWindow.style.display = "block";
 
-    getRequestTo(urls.GET_AUTHORS_URL)
+    const authorsPromise = getRequestTo(urls.GET_AUTHORS_URL)
         .then(resp => resp.json())
-        .then(data => {
-            addAuthorsToList(data);
-        })
+        .then(data => addAuthorsToList(data));
+
+    const categoriesPromise = getRequestTo(urls.GET_CATEGORIES_URL)
+        .then(resp => resp.json())
+        .then(data => storage.addCategories(data));
+    // .then(data => addCategoriesToList(data));
+
+
+    Promise.all([authorsPromise, categoriesPromise])
         .then(() => {
             if (Object.keys(data).length > 0) {
+                storage.setBook(data);
                 document.getElementById("book-id").value = data["id"];
                 document.getElementById("book-title").value = data["title"];
                 // Add authors data
@@ -73,12 +85,18 @@ function openBookWindow(data = {}) {
                     selectCoverButton.innerHTML = "";
                     selectCoverButton.appendChild(img);
                 }
+                // Add categories
+                data["categories"].forEach(c => {
+                    tagBar.appendChild(createTag(c.name));
+                });
+            } else {
+                storage.createBook();
             }
         });
 }
 
 /**
- * Show the selected image from dialog into the image placeholder on book window
+ * Show the selected image from dialog into the image placeholder
  */
 function showCoverImage() {
     if (this.files.length) {
@@ -119,7 +137,6 @@ function filterAuthor() {
     for (let x = 0; x < filterOption.length; x++) {
         const authorName = filterOption[x].dataset.name;
         if ((authorName.toUpperCase().indexOf(filterInput.value.toUpperCase()) > -1) && (filterInput.value.length > 0)) {
-            // console.log("FILTER: ", authorName.toUpperCase().indexOf(filterInput.value.toUpperCase()));
             filterOption[x].style.display = "block";
         } else {
             filterOption[x].style.display = "none";
@@ -176,17 +193,24 @@ function saveBook() {
     const authorName = document.getElementById("author-filter-input").value;
     const coverImage = document.getElementById("cover-data").value;
 
-    const bookData = {
-        title: bookTitle,
-        image: coverImage,
-        authors: [{
-            id: authorId,
-            name: authorName
-        }]
-    };
+    let bookData = storage.getBook();
+    bookData.title = bookTitle;
+    bookData.authors = [{ id: authorId, name: authorName }];
+    bookData.image = coverImage;
+    console.log("Save book: ", bookData);
+
+    // const bookData = {
+    //     title: bookTitle,
+    //     image: coverImage,
+    //     authors: [{
+    //         id: authorId,
+    //         name: authorName
+    //     }]
+    // };
 
     // Insert new book
-    if (bookId == "") {
+    // if (bookId == "") {
+    if (bookData.id == "") {
         postRequestTo(urls.API_BOOK_URL, bookData)
             .then(resp => resp.json())
             .then(data => {
@@ -225,6 +249,7 @@ function closeBookWindow() {
     const bookWindow = document.getElementById("book-window");
     bookWindow.style.display = "none";
     cleanBookWindow();
+    storage.removeBook();
 }
 
 function cleanBookWindow() {
@@ -246,9 +271,36 @@ async function saveAuthor(name) {
     };
 
     const resp = await postRequestTo(urls.API_AUTHOR_URL, authorData)
-        .then(resp => resp.json());
+        .then(resp => resp.json())
+        .then(err => console.log("ERROR AUTHOR PORT REQUEST: ", err));
 
     return resp;
+}
+
+async function saveCategory(name) {
+    const categoryData = {
+        name: name
+    };
+
+    const resp = await postRequestTo(urls.API_CATEGORY_URL, categoryData)
+        .then(resp => resp.json())
+        .catch(err => console.log("ERROR CATEGORY POST REQUEST: ", err));
+
+    return resp;
+}
+
+function createTag(text) {
+    const spanEl = document.createElement("span");
+    spanEl.classList.add("tag");
+
+    const content = document.createTextNode(text);
+    spanEl.appendChild(content);
+
+    spanEl.addEventListener("click", (x) => {
+        spanEl.parentNode.removeChild(spanEl);
+    });
+
+    return spanEl;
 }
 
 export { openBookWindow };
