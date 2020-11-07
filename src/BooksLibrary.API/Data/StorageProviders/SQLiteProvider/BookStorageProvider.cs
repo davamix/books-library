@@ -11,8 +11,8 @@ namespace BooksLibrary.API.Data.StorageProviders.SQLiteProvider
     public class BookStorageProvider : SQLiteProviderBase<Book>
     {
         public BookStorageProvider(IDatabaseConfiguration databaseConfiguration, IQueryReader queryReader, IQueryCommand queryCommand)
-            :base(databaseConfiguration, queryReader, queryCommand)
-        {}
+            : base(databaseConfiguration, queryReader, queryCommand)
+        { }
 
         public override Book Get(string id)
         {
@@ -32,29 +32,36 @@ namespace BooksLibrary.API.Data.StorageProviders.SQLiteProvider
             // MAPPER
             Func<SqliteDataReader, Book> mapper = (SqliteDataReader reader) =>
             {
-                while (reader.Read())
+                var book = new Book();
+
+                try
                 {
-                    return new Book
+                    while (reader.Read())
                     {
-                        Id = reader.GetValue<string>(0),
-                        Title = reader.GetValue<string>(1),
-                        Image = reader.GetValue<string>(2, true),
-                        Authors = new List<Author>{
-                                new Author{
+
+                        book.Id = reader.GetValue<string>(0);
+                        book.Title = reader.GetValue<string>(1);
+                        book.Image = reader.GetValue<string>(2, true);
+                        book.Authors.Add(
+                                new Author
+                                {
                                     Id = reader.GetValue<string>(3),
                                     Name = reader.GetValue<string>(4)
-                                }
-                        },
-                        Categories = new List<Category>{
-                            new Category{
+                                });
+                        book.Categories.Add(
+                            new Category
+                            {
                                 Id = reader.GetValue<string>(5, true),
                                 Name = reader.GetValue<string>(6, true)
-                            }
-                        }
-                    };
+                            });
+                    }
+                }catch(SqliteException){
+                    throw;
+                }catch(ArgumentException){
+                    throw;
                 }
 
-                throw new ArgumentException();
+                return book;
             };
 
             // EXECUTE
@@ -108,8 +115,9 @@ namespace BooksLibrary.API.Data.StorageProviders.SQLiteProvider
             {
                 bookAuthorQueries.Add($"INSERT INTO book_author(book_id, author_id) VALUES('{book.Id}', '{author.Id}');");
             }
-            
-            foreach(var category in book.Categories){
+
+            foreach (var category in book.Categories)
+            {
                 bookCategoryQueries.Add($"INSERT INTO book_category(book_id, category_id) VALUES('{book.Id}', '{category.Id}');");
             }
 
@@ -141,7 +149,8 @@ namespace BooksLibrary.API.Data.StorageProviders.SQLiteProvider
                 bookAuthorQueries.Add($"INSERT INTO book_author(book_id, author_id) VALUES('{id}', '{author.Id}');");
             }
 
-            foreach(var category in book.Categories){
+            foreach (var category in book.Categories)
+            {
                 bookCategoryQueries.Add($"INSERT INTO book_category(book_id, category_id) VALUES('{category.Id}', '{category.Name}');");
             }
 
