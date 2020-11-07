@@ -6,43 +6,41 @@ namespace BooksLibrary.API.Data.Repositories
 {
     public class AuthorRepository : IDataRepository<Author>
     {
-        private readonly IStorageProvider storageProvider;
+        private readonly IStorageProvider<Author> storageProvider;
 
-        public AuthorRepository(IStorageProvider storageProvider)
+        public AuthorRepository(IStorageProvider<Author> storageProvider)
         {
             this.storageProvider = storageProvider;
         }
 
         public Author Get(string id)
         {
-            return storageProvider.GetAuthor(id);
+            return storageProvider.Get(id);
         }
 
         public IList<Author> Get()
         {
-            return storageProvider.GetAuthors();
+            return storageProvider.Get();
         }
 
-        public Author Insert(Author item)
+        public void Insert(Author item)
         {
-            var author = storageProvider.InsertAuthor(item);
-
-            return author;
+            storageProvider.Insert(item);
         }
 
         public Author Update(string id, Author item)
         {
-            return storageProvider.UpdateAuthor(id, item);
+            return storageProvider.Update(id, item);
         }
 
         public void Delete(string id)
         {
-            storageProvider.DeleteAuthor(id);
+            storageProvider.Delete(id);
         }
 
         public IList<Author> Search(string query)
         {
-            return storageProvider.SearchAuthor(query);
+            return storageProvider.Search(query);
         }
     }
 }

@@ -33,9 +33,9 @@ namespace BooksLibrary.API.Controllers
         [HttpPost]
         // https://localhost:5001/api/category
         public ActionResult<Category> AddCategory([FromBody] Category category){
-            var newCategory = dataRepository.Insert(category);
+            dataRepository.Insert(category);
             // Return the book with Id
-            return Ok(newCategory);
+            return Ok(category);
         }
     }
 }

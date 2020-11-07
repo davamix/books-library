@@ -5,7 +5,7 @@ namespace BooksLibrary.API.Entities
     public abstract class EntityBase<T>{
         public string Id{get;set;}
 
-        public EntityBase(): this(Guid.NewGuid().ToString()){}
+        public EntityBase(){}
 
         public EntityBase(string id){
             this.Id = id;

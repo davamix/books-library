@@ -15,6 +15,7 @@ using BooksLibrary.API.Data.StorageProviders;
 using BooksLibrary.API.Data.Database;
 using BooksLibrary.API.Entities;
 using BooksLibrary.API.Data.Database.Queries;
+using BooksLibrary.API.Data.StorageProviders.SQLiteProvider;
 
 namespace BooksLibrary.API
 {
@@ -30,14 +31,16 @@ namespace BooksLibrary.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // services.AddSingleton<IStorageProvider, MemoryStorageProvider>();
-            services.AddSingleton<IStorageProvider, SQLiteProvider>();
+            services.AddScoped<IStorageProvider<Book>, BookStorageProvider>();
+            services.AddScoped<IStorageProvider<Author>, AuthorStorageProvider>();
+            services.AddScoped<IStorageProvider<Category>, CategoryStorageProvider>();
             services.AddSingleton<IDatabaseConfiguration, DatabaseConfiguration>();
             services.AddSingleton<IQueryReader, QueryReader>();
             services.AddSingleton<IQueryCommand, QueryCommand>();
             services.AddSingleton<IDatabaseBootstrap, DatabaseBootstrap>();
             services.AddScoped<IDataRepository<Book>, BookRepository>();
             services.AddScoped<IDataRepository<Author>, AuthorRepository>();
+            services.AddScoped<IDataRepository<Category>, CategoryRepository>();
 
             services.AddCors(o => o.AddPolicy("AllowCors", builder =>
             {

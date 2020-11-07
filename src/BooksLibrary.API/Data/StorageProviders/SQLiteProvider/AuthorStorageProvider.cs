@@ -3,17 +3,23 @@ using System.Collections.Generic;
 using BooksLibrary.API.Entities;
 using Microsoft.Data.Sqlite;
 using BooksLibrary.API.Data.Database.Extensions;
+using BooksLibrary.API.Data.Database;
+using BooksLibrary.API.Data.Database.Queries;
 
-namespace BooksLibrary.API.Data.StorageProviders
+namespace BooksLibrary.API.Data.StorageProviders.SQLiteProvider
 {
-    public partial class SQLiteProvider : IStorageProvider
+    public class AuthorStorageProvider : SQLiteProviderBase<Author>
     {
-        public Author GetAuthor(string id)
+        public AuthorStorageProvider(IDatabaseConfiguration databaseConfiguration, IQueryReader queryReader, IQueryCommand queryCommand)
+            :base(databaseConfiguration, queryReader, queryCommand)
+        {}
+        
+        public override Author Get(string id)
         {
             throw new System.NotImplementedException();
         }
 
-        public IList<Author> GetAuthors()
+        public override IList<Author> Get()
         {
             // QUERY
             var query = @"SELECT id, name FROM authors;";
@@ -39,7 +45,7 @@ namespace BooksLibrary.API.Data.StorageProviders
             return queryReader.Execute(query, mapper);
         }
         
-        public Author InsertAuthor(Author author)
+        protected override void InsertImp(Author author)
         {
             // QUERY
             var query = $@"INSERT INTO authors(id, name) VALUES('{author.Id}', '{author.Name}')";
@@ -50,22 +56,19 @@ namespace BooksLibrary.API.Data.StorageProviders
             }catch(SqliteException){
                 throw;
             }
-
-            return author;
-            
         }
 
-        public Author UpdateAuthor(string id, Author author)
+        public override Author Update(string id, Author author)
         {
             throw new System.NotImplementedException();
         }
 
-        public void DeleteAuthor(string id)
+        public override void Delete(string id)
         {
             throw new System.NotImplementedException();
         }
 
-        public IList<Author> SearchAuthor(string query)
+        public override IList<Author> Search(string query)
         {
             throw new System.NotImplementedException();
         }

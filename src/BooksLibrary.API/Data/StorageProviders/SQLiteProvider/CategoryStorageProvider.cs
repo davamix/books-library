@@ -3,17 +3,23 @@ using System.Collections.Generic;
 using BooksLibrary.API.Entities;
 using Microsoft.Data.Sqlite;
 using BooksLibrary.API.Data.Database.Extensions;
+using BooksLibrary.API.Data.Database;
+using BooksLibrary.API.Data.Database.Queries;
 
-namespace BooksLibrary.API.Data.StorageProviders
+namespace BooksLibrary.API.Data.StorageProviders.SQLiteProvider
 {
-    public partial class SQLiteProvider : IStorageProvider
+    public class CategoryStorageProvider : SQLiteProviderBase<Category>
     {
-        public Category GetCategory(string id)
+        public CategoryStorageProvider(IDatabaseConfiguration databaseConfiguration, IQueryReader queryReader, IQueryCommand queryCommand)
+            :base(databaseConfiguration, queryReader, queryCommand)
+        {}
+
+        public override Category Get(string id)
         {
             throw new System.NotImplementedException();
         }
 
-        public IList<Category> GetCategories()
+        public override IList<Category> Get()
         {
             // QUERY
             var query = @"SELECT id, name FROM categories;";
@@ -39,10 +45,10 @@ namespace BooksLibrary.API.Data.StorageProviders
             return queryReader.Execute(query, mapper);
         }
         
-        public Category InsertCategory(Category category)
+        protected override void InsertImp(Category category)
         {
             // QUERY
-            var query = $@"INSERT INTO authors(id, name) VALUES('{category.Id}', '{category.Name}')";
+            var query = $@"INSERT INTO categories(id, name) VALUES('{category.Id}', '{category.Name}')";
 
             //EXEXUTE
             try{
@@ -50,22 +56,19 @@ namespace BooksLibrary.API.Data.StorageProviders
             }catch(SqliteException){
                 throw;
             }
-
-            return category;
-            
         }
 
-        public Category UpdateCategory(string id, Category author)
+        public override Category Update(string id, Category category)
         {
             throw new System.NotImplementedException();
         }
 
-        public void DeleteCategory(string id)
+        public override void Delete(string id)
         {
             throw new System.NotImplementedException();
         }
 
-        public IList<Category> SearchCategory(string query)
+        public override IList<Category> Search(string query)
         {
             throw new System.NotImplementedException();
         }

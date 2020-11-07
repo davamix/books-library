@@ -11,7 +11,7 @@ namespace BooksLibrary.API.Data.Database.Extensions
 
             if (value.GetType() == typeof(DBNull))
             {
-                if(allowNull) 
+                if(allowNull)
                     return default(T);
                 else 
                     throw new SqliteException($"Index {index} cannot be null", 0); 

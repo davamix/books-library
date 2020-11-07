@@ -3,19 +3,30 @@ using System.Collections.Generic;
 using BooksLibrary.API.Entities;
 using Microsoft.Data.Sqlite;
 using BooksLibrary.API.Data.Database.Extensions;
+using BooksLibrary.API.Data.Database;
+using BooksLibrary.API.Data.Database.Queries;
 
-namespace BooksLibrary.API.Data.StorageProviders
+namespace BooksLibrary.API.Data.StorageProviders.SQLiteProvider
 {
-    public partial class SQLiteProvider : IStorageProvider
+    public class BookStorageProvider : SQLiteProviderBase<Book>
     {
-        public Book GetBook(string id)
+        public BookStorageProvider(IDatabaseConfiguration databaseConfiguration, IQueryReader queryReader, IQueryCommand queryCommand)
+            :base(databaseConfiguration, queryReader, queryCommand)
+        {}
+
+        public override Book Get(string id)
         {
+            // TODO: Change mapper to allow multiple authrors and categories
             // QUERY
-            var query = $@"SELECT b.id AS book_id, b.title, b.image, a.id, a.name
+            var query = $@"SELECT b.id AS book_id, b.title, b.image, a.id, a.name, c.id, c.name
                         FROM books AS b INNER JOIN book_author 
                         ON b.id = book_author.book_id 
                         INNER JOIN authors AS a 
                         ON book_author.author_id = a.id
+                        LEFT JOIN book_category 
+                        ON b.id = book_category.book_id
+                        INNER JOIN categories as c
+                        ON c.id = book_category.category_id
                         WHERE b.id = '{id}'";
 
             // MAPPER
@@ -33,6 +44,12 @@ namespace BooksLibrary.API.Data.StorageProviders
                                     Id = reader.GetValue<string>(3),
                                     Name = reader.GetValue<string>(4)
                                 }
+                        },
+                        Categories = new List<Category>{
+                            new Category{
+                                Id = reader.GetValue<string>(5, true),
+                                Name = reader.GetValue<string>(6, true)
+                            }
                         }
                     };
                 }
@@ -44,7 +61,7 @@ namespace BooksLibrary.API.Data.StorageProviders
             return queryReader.Execute(query, mapper);
         }
 
-        public IList<Book> GetBooks()
+        public override IList<Book> Get()
         {
             // QUERY
             var query = @"SELECT b.id AS book_id, b.title, b.image, a.id, a.name
@@ -81,20 +98,25 @@ namespace BooksLibrary.API.Data.StorageProviders
             return queryReader.Execute(query, mapper);
         }
 
-        public Book InsertBook(Book book)
+        protected override void InsertImp(Book book)
         {
             // QUERY
-
             var bookAuthorQueries = new List<string>();
+            var bookCategoryQueries = new List<string>();
 
             foreach (var author in book.Authors)
             {
                 bookAuthorQueries.Add($"INSERT INTO book_author(book_id, author_id) VALUES('{book.Id}', '{author.Id}');");
             }
+            
+            foreach(var category in book.Categories){
+                bookCategoryQueries.Add($"INSERT INTO book_category(book_id, category_id) VALUES('{book.Id}', '{category.Id}');");
+            }
 
             var query = $@"BEGIN; 
                         INSERT INTO books(id, title, image) VALUES('{book.Id}', '{book.Title}', '{book.Image}');
                         {string.Join(string.Empty, bookAuthorQueries)}
+                        {string.Join(string.Empty, bookCategoryQueries)}
                         COMMIT;";
 
             // EXECUTE
@@ -106,22 +128,26 @@ namespace BooksLibrary.API.Data.StorageProviders
             {
                 throw;
             }
-
-            return book;
         }
 
-        public Book UpdateBook(string id, Book book)
+        public override Book Update(string id, Book book)
         {
             // QUERY
             var bookAuthorQueries = new List<string>();
+            var bookCategoryQueries = new List<string>();
 
             foreach (var author in book.Authors)
             {
                 bookAuthorQueries.Add($"INSERT INTO book_author(book_id, author_id) VALUES('{id}', '{author.Id}');");
             }
 
+            foreach(var category in book.Categories){
+                bookCategoryQueries.Add($"INSERT INTO book_category(book_id, category_id) VALUES('{category.Id}', '{category.Name}');");
+            }
+
             var query = $@"BEGIN;
                         DELETE FROM book_author WHERE book_id = '{id}';
+                        DELETE FROM book_category WHERE book_id = '{id}';
                         UPDATE books SET title = '{book.Title}', image = '{book.Image}' WHERE id = '{id}';
                         {string.Join(string.Empty, bookAuthorQueries)}
                         COMMIT;";
@@ -140,7 +166,7 @@ namespace BooksLibrary.API.Data.StorageProviders
             return book;
         }
 
-        public void DeleteBook(string id)
+        public override void Delete(string id)
         {
             // QUERY
             var query = $@"BEGIN;
@@ -159,7 +185,7 @@ namespace BooksLibrary.API.Data.StorageProviders
             }
         }
 
-        public IList<Book> SearchBook(string query)
+        public override IList<Book> Search(string query)
         {
             // QUERY
             var q = $@"SELECT b.id AS book_id, b.title, b.image, a.id, a.name

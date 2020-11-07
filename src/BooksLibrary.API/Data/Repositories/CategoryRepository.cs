@@ -6,43 +6,41 @@ namespace BooksLibrary.API.Data.Repositories
 {
     public class CategoryRepository : IDataRepository<Category>
     {
-        private readonly IStorageProvider storageProvider;
+        private readonly IStorageProvider<Category> storageProvider;
 
-        public CategoryRepository(IStorageProvider storageProvider)
+        public CategoryRepository(IStorageProvider<Category> storageProvider)
         {
             this.storageProvider = storageProvider;
         }
 
         public Category Get(string id)
         {
-            return storageProvider.GetCategory(id);
+            return storageProvider.Get(id);
         }
 
         public IList<Category> Get()
         {
-            return storageProvider.GetCategories();
+            return storageProvider.Get();
         }
 
-        public Category Insert(Category item)
+        public void Insert(Category item)
         {
-            var category = storageProvider.InsertCategory(item);
-
-            return category;
+            storageProvider.Insert(item);
         }
 
         public Category Update(string id, Category item)
         {
-            return storageProvider.UpdateCategory(id, item);
+            return storageProvider.Update(id, item);
         }
 
         public void Delete(string id)
         {
-            storageProvider.DeleteCategory(id);
+            storageProvider.Delete(id);
         }
 
         public IList<Category> Search(string query)
         {
-            return storageProvider.SearchCategory(query);
+            return storageProvider.Search(query);
         }
     }
 }

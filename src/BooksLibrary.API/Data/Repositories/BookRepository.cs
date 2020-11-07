@@ -5,37 +5,35 @@ using BooksLibrary.API.Data.StorageProviders;
 namespace BooksLibrary.API.Data.Repositories
 {
     public class BookRepository:IDataRepository<Book>{
-        private readonly IStorageProvider storageProvider;
+        private readonly IStorageProvider<Book> storageProvider;
 
-        public BookRepository(IStorageProvider storageProvider)
+        public BookRepository(IStorageProvider<Book> storageProvider)
         {
             this.storageProvider = storageProvider;
         }
 
         public Book Get(string id){
-            return storageProvider.GetBook(id);
+            return storageProvider.Get(id);
         }
 
         public IList<Book> Get(){
-            return storageProvider.GetBooks();
+            return storageProvider.Get();
         }
 
-        public Book Insert(Book item){
-            var book = storageProvider.InsertBook(item);
-
-            return book;
+        public void Insert(Book item){
+            storageProvider.Insert(item);
         }
 
         public Book Update(string id, Book item){
-            return storageProvider.UpdateBook(id, item);
+            return storageProvider.Update(id, item);
         }
 
         public void Delete(string id){
-            storageProvider.DeleteBook(id);
+            storageProvider.Delete(id);
         }
 
         public IList<Book> Search(string query){
-            return storageProvider.SearchBook(query);
+            return storageProvider.Search(query);
         }
     }
 }

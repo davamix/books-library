@@ -33,9 +33,9 @@ namespace BooksLibrary.API.Controllers
         [HttpPost]
         // https://localhost:5001/api/author
         public ActionResult<Author> AddAuthor([FromBody] Author author){
-            var newAuthor = dataRepository.Insert(author);
+            dataRepository.Insert(author);
             // Return the book with Id
-            return Ok(newAuthor);
+            return Ok(author);
         }
     }
 }
