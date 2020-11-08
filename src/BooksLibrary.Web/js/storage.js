@@ -4,6 +4,7 @@ const BOOK_CATEGORIES = "book-categories";
 const BOOK_AUTHORS = "book-authors";
 const CURRENT_BOOK = "book";
 
+// CATEGORIES
 function getCategories(){
     const categories = JSON.parse(localStorage.getItem(ALL_CATEGORIES));
 
@@ -23,6 +24,79 @@ function addCategory(value){
     localStorage.setItem(ALL_CATEGORIES, JSON.stringify([...categories, value]));
 }
 
+function addCategoryToBook(name){
+    const book = getBook();
+    const categories = getCategories();
+
+    let category = categories.find((a) => a.name === name);
+
+    if(!category){
+        category = {
+            name: name
+        };
+    }
+
+    book.categories.push(category);
+
+    setBook(book);
+}
+
+function removeCategoryFromBook(name){
+    const book = getBook();
+
+    const category = book.categories.find((a) => a.name === name);
+
+    if(category){
+        book.categories.splice(book.categories.indexOf(category), 1);
+    }
+
+    setBook(book);
+
+    return category;
+}
+
+// AUTHORS
+function getAuthors(){
+    return JSON.parse(localStorage.getItem(ALL_AUTHORS));
+}
+function addAuthors(data){
+    localStorage.removeItem(ALL_AUTHORS);
+
+    localStorage.setItem(ALL_AUTHORS, JSON.stringify(data));
+}
+
+function addAuthorToBook(name){
+    const book = getBook();
+    const authors = getAuthors();
+
+    let author = authors.find((a) => a.name === name);
+
+    if(!author){
+        author = {
+            name: name
+        };
+    }
+
+    book.authors.push(author);
+
+    setBook(book);
+}
+
+function removeAuthorFromBook(name){
+    const book = getBook();
+
+    const author = book.authors.find((a) => a.name === name);
+
+    if(author){
+        book.authors.splice(book.authors.indexOf(author), 1);
+    }
+
+    setBook(book);
+
+    return author;
+}
+
+// BOOKS
 function getBookCategories(){
     const bookCategories = JSON.parse(localStorage.getItem(BOOK_CATEGORIES));
 
@@ -82,19 +156,18 @@ function setBook(data){
         authors: data["authors"] ?? [],
         categories: data["categories"] ?? []
     };
-    console.log(book);
 
     localStorage.setItem(CURRENT_BOOK, JSON.stringify(book));
 }
 
 function getBook(){
-    const book = localStorage.getItem(CURRENT_BOOK);
-
-    return JSON.parse(book);
+    return JSON.parse(localStorage.getItem(CURRENT_BOOK));
 }
 
 function removeBook(){
     localStorage.removeItem(CURRENT_BOOK);
 }
 
-export { getCategories, addCategories, addCategory, addBookCategory, setBook, getBook, removeBook, createBook};
+export { getCategories, addCategories, addCategoryToBook, removeCategoryFromBook,
+        addAuthors, getAuthors, addAuthorToBook, removeAuthorFromBook,
+        setBook, getBook, removeBook, createBook};

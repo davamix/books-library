@@ -10,6 +10,7 @@ const selectCoverButton = document.getElementById("select-cover");
 const selectCoverDialog = document.getElementById("select-cover-dialog");
 const inputTag = document.getElementById("input-tag");
 const tagBar = document.getElementById("tag-bar");
+const tagAuthors = document.getElementById("tag-authors");
 
 // EVENTS
 closeWindowButton.addEventListener("click", () => {
@@ -42,12 +43,9 @@ selectCoverButton.addEventListener("click", (e) => {
 selectCoverDialog.addEventListener("change", showCoverImage, false);
 
 inputTag.addEventListener("keyup", (x) => {
-    // filterTag();
-
     if (x.key == "Enter") {
-        tagBar.appendChild(createTag(inputTag.value));
-
-        storage.addBookCategory(inputTag.value);
+        storage.addCategoryToBook(name);
+        addCategoryTag(inputTag.value);
 
         inputTag.value = "";
     }
@@ -58,41 +56,31 @@ function openBookWindow(data = {}) {
     const bookWindow = document.getElementById("book-window");
     bookWindow.style.display = "block";
 
-    const authorsPromise = getRequestTo(urls.GET_AUTHORS_URL)
-        .then(resp => resp.json())
-        .then(data => addAuthorsToList(data));
+    addAuthorsToList();
 
-    const categoriesPromise = getRequestTo(urls.GET_CATEGORIES_URL)
-        .then(resp => resp.json())
-        .then(data => storage.addCategories(data));
-    // .then(data => addCategoriesToList(data));
-
-
-    Promise.all([authorsPromise, categoriesPromise])
-        .then(() => {
-            if (Object.keys(data).length > 0) {
-                storage.setBook(data);
-                document.getElementById("book-id").value = data["id"];
-                document.getElementById("book-title").value = data["title"];
-                // Add authors data
-                document.getElementById("author-filter-id").value = data["authors"][0].id;
-                document.getElementById("author-filter-input").value = data["authors"][0].name;
-                // Add cover image data
-                document.getElementById("cover-data").value = data["image"];
-                if (data["image"]) {
-                    const img = document.createElement("img");
-                    img.src = data["image"];
-                    selectCoverButton.innerHTML = "";
-                    selectCoverButton.appendChild(img);
-                }
-                // Add categories
-                data["categories"].forEach(c => {
-                    tagBar.appendChild(createTag(c.name));
-                });
-            } else {
-                storage.createBook();
-            }
+    if (Object.keys(data).length > 0) {
+        storage.setBook(data);
+        document.getElementById("book-id").value = data["id"];
+        document.getElementById("book-title").value = data["title"];
+        // Add authors data
+        data["authors"].forEach(a => {
+            addAuthorTag(a.name);
         });
+        // Add categories
+        data["categories"].forEach(c => {
+            addCategoryTag(c.name);
+        });
+        // Add cover image data
+        document.getElementById("cover-data").value = data["image"];
+        if (data["image"]) {
+            const img = document.createElement("img");
+            img.src = data["image"];
+            selectCoverButton.innerHTML = "";
+            selectCoverButton.appendChild(img);
+        }
+    } else {
+        storage.createBook();
+    }
 }
 
 /**
@@ -122,15 +110,11 @@ function showCoverImage() {
  * Show a list of authors that match with author-filter-input value
  */
 function filterAuthor() {
-    const filterInputId = document.getElementById("author-filter-id");
     const filterInput = document.getElementById("author-filter-input");
     const filterList = document.getElementById("author-filter-list");
     const filterOption = filterList.getElementsByTagName("button");
 
     if (filterOption.length <= 0) return; // No authors available
-
-    // Remove the author ID while typing
-    filterInputId.value = "";
 
     filterList.style.display = "block";
 
@@ -149,34 +133,35 @@ function filterAuthor() {
 }
 
 /**
- * Set the selected name from the list into the input
+ * Add the selected author's name to the current book and create a new tag
  * @param {string} name 
  */
-function setFilterAuthorValue(id, name) {
-    const filterInput = document.getElementById("author-filter-input");
-    filterInput.value = name;
+function addAuthorBook(name) {
+    storage.addAuthorToBook(name);
 
-    const filterInputId = document.getElementById("author-filter-id");
-    filterInputId.value = id;
+    addAuthorTag(name);
+
+    const filterInput = document.getElementById("author-filter-input");
+    filterInput.value = "";
 
     const filterList = document.getElementById("author-filter-list");
     filterList.style.display = "none";
 }
 
-function addAuthorsToList(authors) {
+function addAuthorsToList() {
+    const authors = storage.getAuthors();
     const filterList = document.getElementById("author-filter-list");
     filterList.innerHTML = "";
 
     for (let x = 0; x < authors.length; x++) {
         const optionElement = document.createElement("button");
-        optionElement.setAttribute("data-id", authors[x].id);
         optionElement.setAttribute("data-name", authors[x].name);
 
         const textElement = document.createTextNode(authors[x].name);
         optionElement.appendChild(textElement);
 
         optionElement.addEventListener("click", (x) => {
-            setFilterAuthorValue(optionElement.dataset.id, optionElement.dataset.name);
+            addAuthorBook(optionElement.dataset.name);
         });
 
         filterList.appendChild(optionElement);
@@ -243,6 +228,8 @@ function saveBook() {
                 closeBookWindow();
             });
     }
+
+    // TODO: Reload authors and categories from DB to LS
 }
 
 function closeBookWindow() {
@@ -256,8 +243,8 @@ function cleanBookWindow() {
     document.getElementById("book-id").value = "";
     document.getElementById("book-title").value = "";
     // Clear authors data
-    document.getElementById("author-filter-id").value = "";
     document.getElementById("author-filter-input").value = "";
+    document.getElementById("tag-authors").innerHTML = "";
     const filterList = document.getElementById("author-filter-list");
     filterList.style.display = "none";
     // Clear cover image data
@@ -268,28 +255,34 @@ function cleanBookWindow() {
     document.getElementById("tag-bar").innerHTML = "";
 }
 
-async function saveAuthor(name) {
-    const authorData = {
-        name: name
-    };
+function addCategoryTag(name){
+    const tag = createTag(name);
+    
+    tag.addEventListener("click", () =>{
+        const category = storage.removeCategoryFromBook(name);
 
-    const resp = await postRequestTo(urls.API_AUTHOR_URL, authorData)
-        .then(resp => resp.json())
-        .then(err => console.log("ERROR AUTHOR PORT REQUEST: ", err));
+        if(category.id){
+            // TODO: Remove from DB table book_category
+            console.log("Removing from DB: ", category.id);
+        }
+    });
 
-    return resp;
+    tagBar.appendChild(tag);
 }
 
-async function saveCategory(name) {
-    const categoryData = {
-        name: name
-    };
+function addAuthorTag(name){
+    const tag = createTag(name);
 
-    const resp = await postRequestTo(urls.API_CATEGORY_URL, categoryData)
-        .then(resp => resp.json())
-        .catch(err => console.log("ERROR CATEGORY POST REQUEST: ", err));
+    tag.addEventListener("click", () =>{
+        const author = storage.removeAuthorFromBook(name);
 
-    return resp;
+        if(author.id){
+            // TODO: Remove from DB table book_author
+            console.log("Removing from DB: ", author.id);
+        }
+    });
+
+    tagAuthors.appendChild(tag);
 }
 
 function createTag(text) {

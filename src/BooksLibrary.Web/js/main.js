@@ -2,6 +2,7 @@ import { getRequestTo, postRequestTo, putRequestTo, deleteRequestTo } from "./re
 import { openBookWindow } from "./book-window.js";
 import { searchTitle } from "./search.js";
 import * as urls from "./urls.js";
+import * as storage from "./storage.js";
 
 // ELEMENTS
 const main = document.getElementById("main");
@@ -171,5 +172,20 @@ function editBook(bookId) {
         });
 }
 
+async function loadAuthorsLS(){
+    getRequestTo(urls.GET_AUTHORS_URL)
+        .then(resp => resp.json())
+        .then(data => storage.addAuthors(data));
+}
+
+async function loadCategoriesOnLS(){
+    getRequestTo(urls.GET_CATEGORIES_URL)
+        .then(resp => resp.json())
+        .then(data => storage.addCategories(data));
+}
+
+
+loadAuthorsLS();
+loadCategoriesOnLS();
 
 loadBooks();

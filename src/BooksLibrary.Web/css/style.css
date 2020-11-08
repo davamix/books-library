@@ -284,3 +284,10 @@ main{
     gap: 5px;
     margin-top: 5px;
 }
+
+.tag-authors{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 5px;
+}
