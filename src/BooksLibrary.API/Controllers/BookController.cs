@@ -12,14 +12,14 @@ namespace BooksLibrary.API.Controllers
     public class BookController : ControllerBase
     {
         private readonly IConfiguration configuration;
-        private readonly IDataRepository<Book> dataRepository;
+        private readonly IBookRepository bookRepository;
         private readonly IDataRepository<Author> authorRepository;
         private readonly IDataRepository<Category> categoryRepository;
 
-        public BookController(IConfiguration configuration, IDataRepository<Book> dataRepository, IDataRepository<Author> authorRepository, IDataRepository<Category> categoryRepository)
+        public BookController(IConfiguration configuration, IBookRepository bookRepository, IDataRepository<Author> authorRepository, IDataRepository<Category> categoryRepository)
         {
             this.configuration = configuration;
-            this.dataRepository = dataRepository;
+            this.bookRepository = bookRepository;
             this.authorRepository = authorRepository;
             this.categoryRepository = categoryRepository;
         }
@@ -29,7 +29,7 @@ namespace BooksLibrary.API.Controllers
         // https://localhost:5001/api/book/1
         public Book Get(string id)
         {
-            return dataRepository.Get(id);
+            return bookRepository.Get(id);
         }
 
         [HttpGet]
@@ -37,7 +37,7 @@ namespace BooksLibrary.API.Controllers
         // https://localhost:5001/api/book/GetBooks
         public ActionResult<IList<Book>> GetBooks()
         {
-            return Ok(dataRepository.Get());
+            return Ok(bookRepository.Get());
         }
 
         [HttpGet]
@@ -47,7 +47,7 @@ namespace BooksLibrary.API.Controllers
         {
             if (!string.IsNullOrEmpty(query))
             {
-                return Ok(dataRepository.Search(query));
+                return Ok(bookRepository.Search(query));
             }
 
             return NoContent();
@@ -77,7 +77,7 @@ namespace BooksLibrary.API.Controllers
             }
 
             // Save book
-            dataRepository.Insert(book);
+            bookRepository.Insert(book);
             
             // Return the book with Id
             return Ok(book);
@@ -87,7 +87,27 @@ namespace BooksLibrary.API.Controllers
         [Route("{id}")]
         public ActionResult<Book> UpdateBook(string id, [FromBody] Book book)
         {
-            var updatedBook = dataRepository.Update(id, book);
+            // Save new authors
+            foreach (var author in book.Authors)
+            {
+                if (string.IsNullOrEmpty(author.Id))
+                {
+                    // Save author
+                    authorRepository.Insert(author);
+                }
+            }
+
+            // Save new categories
+            foreach (var category in book.Categories)
+            {
+                if (string.IsNullOrEmpty(category.Id))
+                {
+                    // Save category
+                    categoryRepository.Insert(category);
+                }
+            }
+
+            var updatedBook = bookRepository.Update(id, book);
 
             return Ok(updatedBook);
         }
@@ -95,9 +115,25 @@ namespace BooksLibrary.API.Controllers
         [HttpDelete("{id}")]
         public ActionResult DeleteBook(string id)
         {
-            dataRepository.Delete(id);
+            bookRepository.Delete(id);
 
             return Ok($"Book {id} removed");
+        }
+
+        [HttpDelete]
+        [Route("{book_id}/category/{category_id}")]
+        public ActionResult DeleteCategory(string book_id, string category_id){
+            bookRepository.DeleteBookCategory(book_id, category_id);
+            
+            return Ok();
+        }
+
+        [HttpDelete]
+        [Route("{book_id}/author/{author_id}")]
+        public ActionResult DeleteAuthor(string book_id, string author_id){
+            bookRepository.DeleteBookAuthor(book_id, author_id);
+
+            return Ok();
         }
     }
 }

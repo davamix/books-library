@@ -1,7 +1,5 @@
 const ALL_CATEGORIES = "categories";
 const ALL_AUTHORS = "authors";
-const BOOK_CATEGORIES = "book-categories";
-const BOOK_AUTHORS = "book-authors";
 const CURRENT_BOOK = "book";
 
 // CATEGORIES
@@ -15,13 +13,6 @@ function addCategories(values){
     localStorage.removeItem(ALL_CATEGORIES);
 
     localStorage.setItem(ALL_CATEGORIES, JSON.stringify(values));
-}
-
-function addCategory(value){
-    const categories = getCategories();
-    console.log("Category: ", value);
-
-    localStorage.setItem(ALL_CATEGORIES, JSON.stringify([...categories, value]));
 }
 
 function addCategoryToBook(name){
@@ -97,41 +88,13 @@ function removeAuthorFromBook(name){
 }
 
 // BOOKS
-function getBookCategories(){
-    const bookCategories = JSON.parse(localStorage.getItem(BOOK_CATEGORIES));
+function setCover(data){
+    const book = getBook();
 
-    return bookCategories === null ? [] : bookCategories;
-}
-
-function addBookCategory(value){
-    let book = getBook();
-    const categories = getCategories();
-    // const bookCategories = getBookCategories();
-
-    // console.log("C: ", categories);
-    // console.log("BC: ", bookCategories);
-
-    let category = categories.find((c) => c.name === value);
-    // console.log(category);
-    if(!category){
-        category = {
-            id: "",
-            name: value
-        };
+    if(data){
+        book.image = data;
+        setBook(book);
     }
-    // console.log(category);
-    book.categories.push(category);
-    setBook(book);
-    // localStorage.setItem(BOOK_CATEGORIES, JSON.stringify([...bookCategories, category]));
-    // console.log(...bookCategories);
-    // console.log(category);
-    // console.log(getBookCategories());
-}
-
-function removeBookCategory(value){
-    const bookCategories = getBookCategories();
-
-    localStorage.setItem(BOOK_CATEGORIES, JSON.stringify(bookCategories.filter((category) => category.name != value)));
 }
 
 function createBook(){
@@ -170,4 +133,4 @@ function removeBook(){
 
 export { getCategories, addCategories, addCategoryToBook, removeCategoryFromBook,
         addAuthors, getAuthors, addAuthorToBook, removeAuthorFromBook,
-        setBook, getBook, removeBook, createBook};
+        setBook, getBook, removeBook, createBook, setCover};

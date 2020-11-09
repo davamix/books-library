@@ -12,6 +12,8 @@ const clearButton = document.getElementById("clear");
 // EVENTS
 document.addEventListener("book-saved", (event) => {
     showBook(event.detail.book);
+    loadAuthorsLS();
+    loadCategoriesOnLS();
 });
 
 document.addEventListener("book-updated", (event) => {
@@ -21,6 +23,8 @@ document.addEventListener("book-updated", (event) => {
 
     // Show updated book
     showBook(event.detail.book);
+    loadAuthorsLS();
+    loadCategoriesOnLS();
 });
 
 document.addEventListener("title-found", (event) =>{

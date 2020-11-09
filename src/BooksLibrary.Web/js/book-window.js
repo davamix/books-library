@@ -1,4 +1,4 @@
-import { getRequestTo, postRequestTo, putRequestTo } from "./requests.js";
+import { deleteRequestTo, getRequestTo, postRequestTo, putRequestTo } from "./requests.js";
 import * as storage from "./storage.js";
 import * as urls from "./urls.js";
 
@@ -30,6 +30,13 @@ filterAuthorInput.addEventListener("keyup", (e) => {
         const filterAuthorList = document.getElementById("author-filter-list");
         filterAuthorList.style.display = "none";
     }
+
+    if(e.key == "Enter"){
+        storage.addAuthorToBook(filterAuthorInput.value);
+        addAuthorTag(filterAuthorInput.value);
+
+        filterAuthorInput.value = "";
+    }
 });
 
 selectCoverButton.addEventListener("click", (e) => {
@@ -44,7 +51,7 @@ selectCoverDialog.addEventListener("change", showCoverImage, false);
 
 inputTag.addEventListener("keyup", (x) => {
     if (x.key == "Enter") {
-        storage.addCategoryToBook(name);
+        storage.addCategoryToBook(inputTag.value);
         addCategoryTag(inputTag.value);
 
         inputTag.value = "";
@@ -60,7 +67,6 @@ function openBookWindow(data = {}) {
 
     if (Object.keys(data).length > 0) {
         storage.setBook(data);
-        document.getElementById("book-id").value = data["id"];
         document.getElementById("book-title").value = data["title"];
         // Add authors data
         data["authors"].forEach(a => {
@@ -71,7 +77,6 @@ function openBookWindow(data = {}) {
             addCategoryTag(c.name);
         });
         // Add cover image data
-        document.getElementById("cover-data").value = data["image"];
         if (data["image"]) {
             const img = document.createElement("img");
             img.src = data["image"];
@@ -98,8 +103,7 @@ function showCoverImage() {
             img.src = reader.result;
             selectCoverButton.appendChild(img);
 
-            const coverData = document.getElementById("cover-data");
-            coverData.value = reader.result;
+            storage.setCover(reader.result);
         }
 
         reader.readAsDataURL(this.files[0]);
@@ -172,47 +176,14 @@ function addAuthorsToList() {
  * Save the book info. Insert (POST) if no Id, otherwise, update (PUT) the info.
  */
 function saveBook() {
-    const bookId = document.getElementById("book-id").value;
     const bookTitle = document.getElementById("book-title").value;
-    const authorId = document.getElementById("author-filter-id").value;
-    const authorName = document.getElementById("author-filter-input").value;
-    const coverImage = document.getElementById("cover-data").value;
 
     let bookData = storage.getBook();
     bookData.title = bookTitle;
-    bookData.authors = [{ id: authorId, name: authorName }];
-    bookData.image = coverImage;
-    console.log("Save book: ", bookData);
 
-    // const bookData = {
-    //     title: bookTitle,
-    //     image: coverImage,
-    //     authors: [{
-    //         id: authorId,
-    //         name: authorName
-    //     }]
-    // };
-
-    // Insert new book
-    // if (bookId == "") {
-    if (bookData.id == "") {
-        postRequestTo(urls.API_BOOK_URL, bookData)
-            .then(resp => resp.json())
-            .then(data => {
-                document.dispatchEvent(
-                    new CustomEvent("book-saved", {
-                        detail: {
-                            book: data
-                        }
-                    })
-                );
-            })
-            .then(() => {
-                closeBookWindow();
-            });
-        // Update the book info
-    } else {
-        const url = urls.API_BOOK_URL + bookId;
+    // Update book
+    if (bookData.id) {
+        const url = urls.API_BOOK_URL + bookData.id;
         putRequestTo(url, bookData)
             .then(resp => resp.json())
             .then(data => {
@@ -227,6 +198,23 @@ function saveBook() {
             .then(() => {
                 closeBookWindow();
             });
+    // Insert new book
+    } else {
+        postRequestTo(urls.API_BOOK_URL, bookData)
+            .then(resp => resp.json())
+            .then(data => {
+                document.dispatchEvent(
+                    new CustomEvent("book-saved", {
+                        detail: {
+                            book: data
+                        }
+                    })
+                );
+            })
+            .then(() => {
+                closeBookWindow();
+            });
+        
     }
 
     // TODO: Reload authors and categories from DB to LS
@@ -240,7 +228,6 @@ function closeBookWindow() {
 }
 
 function cleanBookWindow() {
-    document.getElementById("book-id").value = "";
     document.getElementById("book-title").value = "";
     // Clear authors data
     document.getElementById("author-filter-input").value = "";
@@ -248,7 +235,6 @@ function cleanBookWindow() {
     const filterList = document.getElementById("author-filter-list");
     filterList.style.display = "none";
     // Clear cover image data
-    document.getElementById("cover-data").value = "";
     selectCoverButton.innerHTML = `<i class="far fa-image fa-3x"></i>`;
     // Clear categories
     document.getElementById("input-tag").value = "";
@@ -260,10 +246,14 @@ function addCategoryTag(name){
     
     tag.addEventListener("click", () =>{
         const category = storage.removeCategoryFromBook(name);
+        const book = storage.getBook();
 
         if(category.id){
-            // TODO: Remove from DB table book_category
-            console.log("Removing from DB: ", category.id);
+            const deleteUrl = urls.DELETE_BOOK_CATEGORY
+                                .replace("{book_id}", book.id)
+                                .replace("{category_id}", category.id);
+            
+            deleteRequestTo(deleteUrl);
         }
     });
 
@@ -275,10 +265,14 @@ function addAuthorTag(name){
 
     tag.addEventListener("click", () =>{
         const author = storage.removeAuthorFromBook(name);
+        const book = storage.getBook();
 
         if(author.id){
-            // TODO: Remove from DB table book_author
-            console.log("Removing from DB: ", author.id);
+            const deleteUrl = urls.DELETE_BOOK_AUTHOR
+                                .replace("{book_id}", book.id)
+                                .replace("{author_id}", author.id);
+            
+            deleteRequestTo(deleteUrl);
         }
     });
 

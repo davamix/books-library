@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using BooksLibrary.API.Entities;
 using Microsoft.Data.Sqlite;
 using BooksLibrary.API.Data.Database.Extensions;
@@ -8,7 +9,7 @@ using BooksLibrary.API.Data.Database.Queries;
 
 namespace BooksLibrary.API.Data.StorageProviders.SQLiteProvider
 {
-    public class BookStorageProvider : SQLiteProviderBase<Book>
+    public class BookStorageProvider : SQLiteProviderBase<Book>, IBookStorageProvider
     {
         public BookStorageProvider(IDatabaseConfiguration databaseConfiguration, IQueryReader queryReader, IQueryCommand queryCommand)
             : base(databaseConfiguration, queryReader, queryCommand)
@@ -16,7 +17,6 @@ namespace BooksLibrary.API.Data.StorageProviders.SQLiteProvider
 
         public override Book Get(string id)
         {
-            // TODO: Change mapper to allow multiple authrors and categories
             // QUERY
             var query = $@"SELECT b.id AS book_id, b.title, b.image, a.id, a.name, c.id, c.name
                         FROM books AS b INNER JOIN book_author 
@@ -25,7 +25,7 @@ namespace BooksLibrary.API.Data.StorageProviders.SQLiteProvider
                         ON book_author.author_id = a.id
                         LEFT JOIN book_category 
                         ON b.id = book_category.book_id
-                        INNER JOIN categories as c
+                        LEFT JOIN categories as c
                         ON c.id = book_category.category_id
                         WHERE b.id = '{id}'";
 
@@ -42,22 +42,34 @@ namespace BooksLibrary.API.Data.StorageProviders.SQLiteProvider
                         book.Id = reader.GetValue<string>(0);
                         book.Title = reader.GetValue<string>(1);
                         book.Image = reader.GetValue<string>(2, true);
-                        book.Authors.Add(
-                                new Author
-                                {
-                                    Id = reader.GetValue<string>(3),
-                                    Name = reader.GetValue<string>(4)
-                                });
-                        book.Categories.Add(
-                            new Category
+
+                        var authorId = reader.GetValue<string>(3);
+                        if (!book.Authors.Any(x => x.Id.Equals(authorId)))
+                        {
+                            book.Authors.Add(new Author
                             {
-                                Id = reader.GetValue<string>(5, true),
+                                Id = authorId,
+                                Name = reader.GetValue<string>(4)
+                            });
+                        }
+
+                        var categoryId = reader.GetValue<string>(5, true);
+                        if (categoryId != null && !book.Categories.Any(x => x.Id.Equals(categoryId)))
+                        {
+                            book.Categories.Add(new Category
+                            {
+                                Id = categoryId,
                                 Name = reader.GetValue<string>(6, true)
                             });
+                        }
                     }
-                }catch(SqliteException){
+                }
+                catch (SqliteException)
+                {
                     throw;
-                }catch(ArgumentException){
+                }
+                catch (ArgumentException)
+                {
                     throw;
                 }
 
@@ -80,25 +92,31 @@ namespace BooksLibrary.API.Data.StorageProviders.SQLiteProvider
             // MAPPER
             Func<SqliteDataReader, IList<Book>> mapper = (SqliteDataReader reader) =>
             {
-                var books = new List<Book>();
+                var books = new Dictionary<string, Book>();
 
                 while (reader.Read())
                 {
-                    books.Add(new Book
+                    var book = new Book();
+                    var bookId = reader.GetValue<string>(0);
+
+                    if (books.ContainsKey(bookId))
                     {
-                        Id = reader.GetValue<string>(0),
-                        Title = reader.GetValue<string>(1),
-                        Image = reader.GetValue<string>(2, true),
-                        Authors = new List<Author>(){
-                                new Author{
-                                    Id = reader.GetValue<string>(3),
-                                    Name = reader.GetValue<string>(4)
-                                }
-                        }
+                        book = books[bookId];
+                    }
+
+                    book.Id = bookId;
+                    book.Title = reader.GetValue<string>(1);
+                    book.Image = reader.GetValue<string>(2, true);
+                    book.Authors.Add(new Author
+                    {
+                        Id = reader.GetValue<string>(3),
+                        Name = reader.GetValue<string>(4)
                     });
+
+                    books[bookId] = book;
                 }
 
-                return books;
+                return books.Select(x => x.Value).ToList();
             };
 
             // EXECUTE
@@ -151,14 +169,15 @@ namespace BooksLibrary.API.Data.StorageProviders.SQLiteProvider
 
             foreach (var category in book.Categories)
             {
-                bookCategoryQueries.Add($"INSERT INTO book_category(book_id, category_id) VALUES('{category.Id}', '{category.Name}');");
+                bookCategoryQueries.Add($"INSERT INTO book_category(book_id, category_id) VALUES('{id}', '{category.Id}');");
             }
 
             var query = $@"BEGIN;
                         DELETE FROM book_author WHERE book_id = '{id}';
                         DELETE FROM book_category WHERE book_id = '{id}';
                         UPDATE books SET title = '{book.Title}', image = '{book.Image}' WHERE id = '{id}';
-                        {string.Join(string.Empty, bookAuthorQueries)}
+                        {string.Join(string.Empty, bookAuthorQueries)};
+                        {string.Join(string.Empty, bookCategoryQueries)};
                         COMMIT;";
 
             // EXECUTE
@@ -230,6 +249,24 @@ namespace BooksLibrary.API.Data.StorageProviders.SQLiteProvider
 
             // EXECUTE
             return queryReader.Execute(q, mapper);
+        }
+
+        public void DeleteBookCategory(string bookId, string categoryId)
+        {
+            // QUERY
+            var query = $"DELETE FROM book_category WHERE book_id = '{bookId}' AND category_id = '{categoryId}'";
+
+            // EXECUTE
+            queryCommand.Execute(query);
+        }
+
+        public void DeleteBookAuthor(string bookId, string authorId)
+        {
+            // QUERY
+            var query = $"DELETE FROM book_author WHERE book_id = '{bookId}' AND author_id = '{authorId}'";
+
+            // EXECUTE
+            queryCommand.Execute(query);
         }
     }
 }

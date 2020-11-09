@@ -196,7 +196,7 @@ main{
     border: 1px solid #373b69;
     height: 100%;
     width: 60%;
-    max-height: 180px;
+    max-height: 185px;
     cursor: pointer;
     
 }
@@ -273,21 +273,24 @@ main{
     background-color: #373b69;
     color: #eee;
     border: 1px solid;
-    border-radius: 5px;
-    padding: 0.5rem;
+    border-radius: 3px;
+    padding: 0.3rem;
     cursor: pointer;
+    font-size: 0.8rem;
 }
 
 .tag-bar{
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
-    margin-top: 5px;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
 }
 
 .tag-authors{
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
-    margin-top: 5px;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
 }

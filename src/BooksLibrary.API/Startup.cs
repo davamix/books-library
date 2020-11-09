@@ -31,14 +31,14 @@ namespace BooksLibrary.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<IStorageProvider<Book>, BookStorageProvider>();
+            services.AddScoped<IBookStorageProvider, BookStorageProvider>();
             services.AddScoped<IStorageProvider<Author>, AuthorStorageProvider>();
             services.AddScoped<IStorageProvider<Category>, CategoryStorageProvider>();
             services.AddSingleton<IDatabaseConfiguration, DatabaseConfiguration>();
             services.AddSingleton<IQueryReader, QueryReader>();
             services.AddSingleton<IQueryCommand, QueryCommand>();
             services.AddSingleton<IDatabaseBootstrap, DatabaseBootstrap>();
-            services.AddScoped<IDataRepository<Book>, BookRepository>();
+            services.AddScoped<IBookRepository, BookRepository>();
             services.AddScoped<IDataRepository<Author>, AuthorRepository>();
             services.AddScoped<IDataRepository<Category>, CategoryRepository>();
 
