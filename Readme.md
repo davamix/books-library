@@ -2,6 +2,8 @@
 
 ![Books library screenshot](images/capture1.webp)
 
+![Edit book window](images/capture2.webp)
+
 ## Build
 
 ```
