@@ -70,7 +70,7 @@ function openBookWindow(data = {}) {
     const bookWindow = document.getElementById("book-window");
     bookWindow.style.display = "block";
 
-    addAuthorsToList();
+    addAuthorsToFilterList();
     addCategoriesToFilterList();
 
     if (Object.keys(data).length > 0) {
@@ -199,7 +199,7 @@ function addCategoryBook(name) {
     filterList.style.display = "none";
 }
 
-function addAuthorsToList() {
+function addAuthorsToFilterList() {
     const authors = storage.getAuthors();
     const filterList = document.getElementById("author-filter-list");
     filterList.innerHTML = "";
