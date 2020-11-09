@@ -28,6 +28,6 @@ Navigate to `localhost`
 
 ## Todo
 
-- [ ] Allow multiple authors
+- [x] Allow multiple authors
 - [ ] Search by author
-- [ ] Add book categories
+- [x] Add book categories
