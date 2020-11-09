@@ -247,7 +247,7 @@ main{
     height: auto;
 }
 
-.author-filter-list{
+.filter-list{
     background-color: #fff;
     position: absolute;
     display: none;
@@ -256,7 +256,7 @@ main{
     
 }
 
-.author-filter-list button{
+.filter-list button{
     border: none;
     padding: 0.5rem;
     cursor: pointer;
@@ -265,7 +265,7 @@ main{
     text-align: left;
 }
 
-.author-filter-list button:hover{
+.filter-list button:hover{
     background-color: #ddd;
 }
 

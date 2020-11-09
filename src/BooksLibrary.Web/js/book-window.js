@@ -8,8 +8,8 @@ const closeWindowButton = document.getElementById("close");
 const filterAuthorInput = document.getElementById("author-filter-input");
 const selectCoverButton = document.getElementById("select-cover");
 const selectCoverDialog = document.getElementById("select-cover-dialog");
-const inputTag = document.getElementById("input-tag");
-const tagBar = document.getElementById("tag-bar");
+const filterCategoryInput = document.getElementById("category-filter-input");
+const tagCategories = document.getElementById("tag-categories");
 const tagAuthors = document.getElementById("tag-authors");
 
 // EVENTS
@@ -31,7 +31,7 @@ filterAuthorInput.addEventListener("keyup", (e) => {
         filterAuthorList.style.display = "none";
     }
 
-    if(e.key == "Enter"){
+    if (e.key == "Enter") {
         storage.addAuthorToBook(filterAuthorInput.value);
         addAuthorTag(filterAuthorInput.value);
 
@@ -49,12 +49,19 @@ selectCoverButton.addEventListener("click", (e) => {
 
 selectCoverDialog.addEventListener("change", showCoverImage, false);
 
-inputTag.addEventListener("keyup", (x) => {
-    if (x.key == "Enter") {
-        storage.addCategoryToBook(inputTag.value);
-        addCategoryTag(inputTag.value);
+filterCategoryInput.addEventListener("keyup", (e) => {
+    filterCategory();
 
-        inputTag.value = "";
+    if (e.key == "Escape"){
+        const filterList = document.getElementById("category-filter-list");
+        filterList.style.display = "none";
+    }
+
+    if (e.key == "Enter") {
+        storage.addCategoryToBook(filterCategoryInput.value);
+        addCategoryTag(filterCategoryInput.value);
+
+        filterCategoryInput.value = "";
     }
 });
 
@@ -64,6 +71,7 @@ function openBookWindow(data = {}) {
     bookWindow.style.display = "block";
 
     addAuthorsToList();
+    addCategoriesToFilterList();
 
     if (Object.keys(data).length > 0) {
         storage.setBook(data);
@@ -136,6 +144,29 @@ function filterAuthor() {
     }
 }
 
+function filterCategory(){
+    const filterInput = document.getElementById("category-filter-input");
+    const filterList = document.getElementById("category-filter-list");
+    const filterOption = filterList.getElementsByTagName("button");
+
+    if (filterOption.length <= 0) return; // No authors available
+
+    filterList.style.display = "block";
+
+    for (let x = 0; x < filterOption.length; x++) {
+        const categoryName = filterOption[x].dataset.name;
+        if ((categoryName.toUpperCase().indexOf(filterInput.value.toUpperCase()) > -1) && (filterInput.value.length > 0)) {
+            filterOption[x].style.display = "block";
+        } else {
+            filterOption[x].style.display = "none";
+        }
+
+        if (filterInput.value.length <= 0) {
+            filterList.style.display = "none";
+        }
+    }
+}
+
 /**
  * Add the selected author's name to the current book and create a new tag
  * @param {string} name 
@@ -149,6 +180,22 @@ function addAuthorBook(name) {
     filterInput.value = "";
 
     const filterList = document.getElementById("author-filter-list");
+    filterList.style.display = "none";
+}
+
+/**
+ * Add the selected category name to the current book and create a new tag
+ * @param {string} name 
+ */
+function addCategoryBook(name) {
+    storage.addCategoryToBook(name);
+
+    addCategoryTag(name);
+
+    const filterInput = document.getElementById("category-filter-input");
+    filterInput.value = "";
+
+    const filterList = document.getElementById("category-filter-list");
     filterList.style.display = "none";
 }
 
@@ -170,6 +217,32 @@ function addAuthorsToList() {
 
         filterList.appendChild(optionElement);
     }
+}
+
+function addCategoriesToFilterList() {
+    const categories = storage.getCategories();
+    const filterList = document.getElementById("category-filter-list");
+    filterList.innerHTML = "";
+
+    for(let x=0; x<categories.length; x++){
+        let optionElement = createButtonFilter(categories[x].name);
+
+        optionElement.addEventListener("click", (x) =>{
+            addCategoryBook(optionElement.dataset.name);
+        });
+
+        filterList.appendChild(optionElement);
+    }
+}
+
+function createButtonFilter(value) {
+    const optionElement = document.createElement("button");
+    optionElement.setAttribute("data-name", value);
+
+    const textElement = document.createTextNode(value);
+    optionElement.appendChild(textElement);
+
+    return optionElement;
 }
 
 /**
@@ -198,7 +271,7 @@ function saveBook() {
             .then(() => {
                 closeBookWindow();
             });
-    // Insert new book
+        // Insert new book
     } else {
         postRequestTo(urls.API_BOOK_URL, bookData)
             .then(resp => resp.json())
@@ -214,7 +287,7 @@ function saveBook() {
             .then(() => {
                 closeBookWindow();
             });
-        
+
     }
 
     // TODO: Reload authors and categories from DB to LS
@@ -237,41 +310,41 @@ function cleanBookWindow() {
     // Clear cover image data
     selectCoverButton.innerHTML = `<i class="far fa-image fa-3x"></i>`;
     // Clear categories
-    document.getElementById("input-tag").value = "";
-    document.getElementById("tag-bar").innerHTML = "";
+    document.getElementById("category-filter-input").value = "";
+    document.getElementById("tag-categories").innerHTML = "";
 }
 
-function addCategoryTag(name){
+function addCategoryTag(name) {
     const tag = createTag(name);
-    
-    tag.addEventListener("click", () =>{
+
+    tag.addEventListener("click", () => {
         const category = storage.removeCategoryFromBook(name);
         const book = storage.getBook();
 
-        if(category.id){
+        if (category.id) {
             const deleteUrl = urls.DELETE_BOOK_CATEGORY
-                                .replace("{book_id}", book.id)
-                                .replace("{category_id}", category.id);
-            
+                .replace("{book_id}", book.id)
+                .replace("{category_id}", category.id);
+
             deleteRequestTo(deleteUrl);
         }
     });
 
-    tagBar.appendChild(tag);
+    tagCategories.appendChild(tag);
 }
 
-function addAuthorTag(name){
+function addAuthorTag(name) {
     const tag = createTag(name);
 
-    tag.addEventListener("click", () =>{
+    tag.addEventListener("click", () => {
         const author = storage.removeAuthorFromBook(name);
         const book = storage.getBook();
 
-        if(author.id){
+        if (author.id) {
             const deleteUrl = urls.DELETE_BOOK_AUTHOR
-                                .replace("{book_id}", book.id)
-                                .replace("{author_id}", author.id);
-            
+                .replace("{book_id}", book.id)
+                .replace("{author_id}", author.id);
+
             deleteRequestTo(deleteUrl);
         }
     });
