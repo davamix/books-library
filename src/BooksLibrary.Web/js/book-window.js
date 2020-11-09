@@ -32,10 +32,7 @@ filterAuthorInput.addEventListener("keyup", (e) => {
     }
 
     if (e.key == "Enter") {
-        storage.addAuthorToBook(filterAuthorInput.value);
-        addAuthorTag(filterAuthorInput.value);
-
-        filterAuthorInput.value = "";
+        addAuthorBook(filterAuthorInput.value);
     }
 });
 
@@ -58,10 +55,7 @@ filterCategoryInput.addEventListener("keyup", (e) => {
     }
 
     if (e.key == "Enter") {
-        storage.addCategoryToBook(filterCategoryInput.value);
-        addCategoryTag(filterCategoryInput.value);
-
-        filterCategoryInput.value = "";
+        addCategoryBook(filterCategoryInput.value);
     }
 });
 
@@ -305,13 +299,15 @@ function cleanBookWindow() {
     // Clear authors data
     document.getElementById("author-filter-input").value = "";
     document.getElementById("tag-authors").innerHTML = "";
-    const filterList = document.getElementById("author-filter-list");
-    filterList.style.display = "none";
+    const authorFilterList = document.getElementById("author-filter-list");
+    authorFilterList.style.display = "none";
     // Clear cover image data
     selectCoverButton.innerHTML = `<i class="far fa-image fa-3x"></i>`;
     // Clear categories
     document.getElementById("category-filter-input").value = "";
     document.getElementById("tag-categories").innerHTML = "";
+    const categoryFilterList = document.getElementById("category-filter-list");
+    categoryFilterList.style.display = "none";
 }
 
 function addCategoryTag(name) {
