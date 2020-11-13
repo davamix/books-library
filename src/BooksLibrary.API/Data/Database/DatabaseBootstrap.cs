@@ -15,12 +15,6 @@ namespace BooksLibrary.API.Data.Database
         public DatabaseBootstrap(IDatabaseConfiguration databaseConfiguration)
         {
             this.databaseConfiguration = databaseConfiguration;
-            // this.configuration = configuration;
-            // TODO: Initialize DB
-
-            // Create tables 
-            // -> Books
-            // -> Authors
         }
 
         public void Setup(bool addTestData = false)
