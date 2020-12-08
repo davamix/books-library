@@ -1,4 +1,4 @@
-# Books Library (WIP)
+# Books Library
 
 ![Books library screenshot](images/capture1.webp)
 
